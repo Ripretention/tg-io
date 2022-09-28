@@ -4,6 +4,7 @@
 	"description": "Useful and fast library for Telegram Bots",
 	"main": "index.js",
 	"scripts": {
+		"watch": "tsc -p tsconfig.build.json --watch",
 		"test": "jest --config jest.config.json --maxWorkers=1",
 		"lint": "eslint . --ext .ts",
 		"lint-fix": "eslint . --ext .ts --fix",
@@ -22,6 +23,7 @@
 	"license": "ISC",
 	"dependencies": {
 		"@types/node": "^18.7.21",
+		"axios": "^0.27.2",
 		"debug": "^4.3.4",
 		"typescript": "^4.8.3"
 	},
