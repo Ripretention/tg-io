@@ -21,7 +21,7 @@ export class UpdateHandler {
 	}
 
 	public onUpdate<TUpdate>(updateKind: string, handler: UpdateHandlerFn<TUpdate>) {
-		if (!updateKind.hasOwnProperty(updateKind))
+		if (!this.updates.hasOwnProperty(updateKind))
 			this.updates[updateKind] = [];
 		this.updates[updateKind].unshift(handler);
 	}
