@@ -5,42 +5,47 @@ let handler: UpdateHandler;
 beforeEach(() => {
 	handler = new UpdateHandler();
 });
-test("check correct work of next function in middleware", async () => {
-	let handledUpdateCount = 0;
-	let update: IUpdate = {
-		update_id: 1,
-		message: {},
-	};
-	let testHandler = (_: any, next: () => void) => {
-		handledUpdateCount++;
-		if (handledUpdateCount < 4)
+describe("onUpdate", () => {
+	test("check correct work of next function in middleware", async () => {
+		let handledUpdateCount = 0;
+		let update: IUpdate = {
+			update_id: 1,
+			message: {},
+		};
+		let testHandler = (_: any, next: () => void) => {
+			handledUpdateCount++;
+			if (handledUpdateCount < 4)
+				next();
+		};
+		for (let i = 0; i < 10; i++)
+			handler.onUpdate("message", testHandler);
+
+		await handler.handle(update);
+
+		expect(handledUpdateCount).toBe(4);
+	});
+	test("should correct match with update type", async () => {
+		let handledUpdateCount = 0;
+		let update: IUpdate = {
+			update_id: 1,
+			message: {},
+			someDoppedUpdate: {},
+			newPhoto: null
+		};
+		let testHandler = (_: any, next: () => void) => {
+			handledUpdateCount++;
 			next();
-	};
-	for (let i = 0; i < 10; i++)
+		};
 		handler.onUpdate("message", testHandler);
+		handler.onUpdate("newPhoto", testHandler);
 
-	await handler.handle(update);
+		await handler.handle(update);
 
-	expect(handledUpdateCount).toBe(4);
+		expect(handledUpdateCount).toBe(2);
+	});
 });
-test("should correct match with update type", async () => {
-	let handledUpdateCount = 0;
-	let update: IUpdate = {
-		update_id: 1,
-		message: {
-			text: "some text",	
-		},
-		someDoppedUpdate: {},
-		newPhoto: null
-	};
-	let testHandler = (_: any, next: () => void) => {
-		handledUpdateCount++;
-		next();
-	};
-	handler.onUpdate("message", testHandler);
-	handler.onUpdate("newPhoto", testHandler);
 
-	await handler.handle(update);
+describe("hearCommand", () => {
 
-	expect(handledUpdateCount).toBe(2);
 });
+
