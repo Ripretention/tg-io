@@ -46,6 +46,42 @@ describe("onUpdate", () => {
 });
 
 describe("hearCommand", () => {
+	let update: IUpdate = {
+		update_id: 1,
+		message: {
+			message_id: 1,	
+			date: null,
+			text: "/test"
+		}
+	};
 
+	test("should pass basic string match", async () => {
+		let handled = false;
+		handler.hearCommand("/test", () => { handled = true; });
+
+		await handler.handle(update);
+		
+		expect(handled).toBe(true);
+	});
+	test("should pass string[] match", async () => {
+		let handledCommads = 0;
+		handler.hearCommand(["/test", "/test2"], () => { handledCommads++; });
+
+		await handler.handle(update);
+		update.message.text = "/test2";
+		await handler.handle(update);
+		
+		expect(handledCommads).toBe(2);
+	});
+	test("should pass regex match", async () => {
+		let handledCommads = 0;
+		handler.hearCommand(/^\/test/i, () => { handledCommads++; });
+
+		await handler.handle(update);
+		update.message.text = "/test2";
+		await handler.handle(update);
+		
+		expect(handledCommads).toBe(2);
+	});
 });
 

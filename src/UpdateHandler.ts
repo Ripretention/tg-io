@@ -32,8 +32,8 @@ export class UpdateHandler {
 	}
 	public hearCommand(match: CommandMatch, handler: UpdateHandlerFn<IMessage>) {
 		this.onUpdate<IMessage>("message", (upd, next) => {
-			if (upd?.text ?? "" === "")
-				return;
+			if ((upd?.text ?? "") === "")
+				return next();
 
 			let { text } = upd;
 			if (
