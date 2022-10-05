@@ -4,6 +4,7 @@ import { IUpdate } from "./types/IUpdate";
 export type CommandMatch = string | string[] | RegExp;
 export type UpdateHandlerFn<TUpdate> = (context: TUpdate, next: () => void) => any;
 export class UpdateHandler {
+	private baseHandler: UpdateHandlerFn<IUpdate> = null;
 	private updates: { [kind: string]: UpdateHandlerFn<any>[] } = {};
 
 	public async handle(update: IUpdate) {
@@ -11,6 +12,10 @@ export class UpdateHandler {
 		let nextMiddlewareFn = () => { 
 			middlewareState = HandlerMiddlewareState.Next; 
 		};
+
+		await this?.baseHandler?.(update, nextMiddlewareFn);
+		if (middlewareState !== HandlerMiddlewareState.Next)
+			return;
 
 		for (let updateHandler of Object.entries(this.updates)
 			.filter(([key]) => Object.keys(update).includes(key))
@@ -25,6 +30,9 @@ export class UpdateHandler {
 		}
 	}
 
+	public use(handler: UpdateHandlerFn<IUpdate>) {
+		this.baseHandler = handler;
+	}
 	public onUpdate<TUpdate>(updateKind: string, handler: UpdateHandlerFn<TUpdate>) {
 		if (!this.updates.hasOwnProperty(updateKind))
 			this.updates[updateKind] = [];
@@ -43,6 +51,12 @@ export class UpdateHandler {
 			)
 				return handler(upd, next);
 		});
+	}
+	public onMessageEvent(event: keyof IMessage, handler: UpdateHandlerFn<IMessage>) {
+		this.onUpdate<IMessage>("message", (upd, next) => upd.hasOwnProperty(event)
+			? handler(upd, next)
+			: next()
+		);
 	}
 }
 
