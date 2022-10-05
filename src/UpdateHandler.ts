@@ -52,7 +52,7 @@ export class UpdateHandler {
 				return handler(upd, next);
 		});
 	}
-	public onMessageEvent(event: keyof IMessage, handler: UpdateHandlerFn<IMessage>) {
+	public onMessageEvent(event: string, handler: UpdateHandlerFn<IMessage>) {
 		this.onUpdate<IMessage>("message", (upd, next) => upd.hasOwnProperty(event)
 			? handler(upd, next)
 			: next()
