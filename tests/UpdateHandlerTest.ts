@@ -11,7 +11,7 @@ let baseUpdate: IUpdate = {
 };
 
 beforeEach(() => {
-	handler = new UpdateHandler();
+	handler = new UpdateHandler(null);
 });
 describe("onUpdate", () => {
 	test("check correct work of next function in middleware", async () => {

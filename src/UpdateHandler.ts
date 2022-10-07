@@ -1,9 +1,13 @@
+import {Api} from "./Api";
+import {MessageContext} from "./models/MessageContext";
 import { IMessage } from "./types/IMessage";
 import { IUpdate } from "./types/IUpdate";
 
 export type CommandMatch = string | string[] | RegExp;
 export type UpdateHandlerFn<TUpdate> = (context: TUpdate, next: () => void) => any;
 export class UpdateHandler {
+	constructor(private readonly api: Api) {}
+
 	private baseHandler: UpdateHandlerFn<IUpdate> = null;
 	private updates: { [kind: string]: UpdateHandlerFn<any>[] } = {};
 
@@ -38,7 +42,7 @@ export class UpdateHandler {
 			this.updates[updateKind] = [];
 		this.updates[updateKind].push((upd, next) => handler(upd[updateKind], next));
 	}
-	public hearCommand(match: CommandMatch, handler: UpdateHandlerFn<IMessage>) {
+	public hearCommand(match: CommandMatch, handler: UpdateHandlerFn<MessageContext>) {
 		this.onUpdate<IMessage>("message", (upd, next) => {
 			if ((upd?.text ?? "") === "")
 				return next();
@@ -49,12 +53,12 @@ export class UpdateHandler {
 				(Array.isArray(match) && match.some(t => t === text)) ||
 				(match as RegExp).test(text)
 			)
-				return handler(upd, next);
+				return handler(new MessageContext(this.api, upd), next);
 		});
 	}
-	public onMessageEvent(event: string, handler: UpdateHandlerFn<IMessage>) {
+	public onMessageEvent(event: string, handler: UpdateHandlerFn<MessageContext>) {
 		this.onUpdate<IMessage>("message", (upd, next) => upd.hasOwnProperty(event)
-			? handler(upd, next)
+			? handler(new MessageContext(this.api, upd), next)
 			: next()
 		);
 	}
