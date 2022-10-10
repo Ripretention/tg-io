@@ -1,7 +1,7 @@
 import {Api} from "./Api";
-import {MessageContext} from "./models/MessageContext";
-import { IMessage } from "./types/IMessage";
-import { IUpdate } from "./types/IUpdate";
+import {MessageContext} from "./contexts/MessageContext";
+import {IMessage} from "./types/IMessage";
+import {IUpdate} from "./types/IUpdate";
 
 export type CommandMatch = string | string[] | RegExp;
 export type UpdateHandlerFn<TUpdate> = (context: TUpdate, next: () => void) => any;
