@@ -12,7 +12,7 @@ export class Message extends Entity<IMessage> {
 	public readonly chat = this.get("chat") 
 		? new Chat(this.get("chat")) 
 		: null;
-	public readonly replyMessage = this.get("reply_to_message")
+	public readonly reply = this.get("reply_to_message")
 		? new Message(this.get("reply_to_message"))
 		: null; 
 	public text = this.get("text");

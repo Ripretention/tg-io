@@ -52,8 +52,13 @@ export class UpdateHandler {
 				(typeof match === "string" && text === match) ||
 				(Array.isArray(match) && match.some(t => t === text)) ||
 				(match as RegExp).test(text)
-			)
-				return handler(new MessageContext(this.api, upd), next);
+			) {
+				let msg = new MessageContext(this.api, upd);
+				msg.match = match instanceof RegExp 
+					? text.match(match) 
+					: [];
+				return handler(msg, next);
+			}
 		});
 	}
 	public onMessageEvent(event: string, handler: UpdateHandlerFn<MessageContext>) {
