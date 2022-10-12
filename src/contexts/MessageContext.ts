@@ -15,18 +15,16 @@ export class MessageContext extends Message {
 		params = typeof params === "string" 
 			? { text: params } 
 			: params;
-
+		
 		params.reply_to_message_id = this.id;
 		return this.sendMessage(params);
 	}
-	public sendMessage(params: SendMessageParams): Promise<IUpdateCollection> {	
+	public sendMessage(params: SendMessageParams) {	
 		params = typeof params === "string" 
 			? { text: params } 
 			: params;
 
-		return this.api.callMethod("sendMessage", { 
-			chat_id: this.chat.id, 
-			...params 
-		});
+		params.chat_id = this.chat.id;
+		return this.api.callMethod("sendMessage", params);
 	}
 }

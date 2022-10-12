@@ -10,3 +10,15 @@ export interface IBaseSendParams {
 export interface IMessageSendParams extends IBaseSendParams {
 	text: string;
 }
+
+export type InputFile = string | { file_id: string };
+export type AttachmentTypes = 
+	"photo" | 
+	"audio" |
+	"video" |
+	"document" |
+	"animation" |
+	"voice" | 
+	"video_note" |
+	"media" |
+	"sticker";
