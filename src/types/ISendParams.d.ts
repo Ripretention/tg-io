@@ -22,3 +22,6 @@ export type AttachmentTypes =
 	"video_note" |
 	"media" |
 	"sticker";
+export type AttachmentSendParams<T extends AttachmentTypes> = { 
+	[K in T]: InputFile 
+} & IBaseSendParams;
