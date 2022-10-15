@@ -32,7 +32,6 @@ export interface IVideoNoteAttachment extends IAttachment {
 	thumb?: IPhotoAttachment;
 }
 
-export interface IVideoAttachment extends IAttachment {
+export interface IVoiceAttachment extends IAttachment {
 	duration: number;
-	thumb?: IPhotoAttachment;
 }
