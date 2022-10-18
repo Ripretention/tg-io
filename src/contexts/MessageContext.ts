@@ -1,11 +1,13 @@
 import {Api} from "../Api";
+import {Attachment} from "../models/attachments";
 import {Message} from "../models/Message";
 import {IMessage} from "../types/IMessage";
-import {AttachmentSendParams, AttachmentTypes, IBaseSendParams} from "../types/ISendParams";
+import {AttachmentSendParams, AttachmentTypes, IBaseSendParams, InputFile} from "../types/ISendParams";
 import {IUpdateCollection} from "../types/IUpdate";
 import {StringUtils} from "../Utils";
 
 type SendMessageParams = string | { text: string } & Partial<IBaseSendParams>;
+type SendAttachmentParams<TAttachment extends AttachmentTypes> = AttachmentSendParams<TAttachment> | InputFile | Attachment<any>;
 export class MessageContext extends Message {
 	public match: string[] = [];
 	constructor(private readonly api: Api, source: IMessage) {
@@ -26,7 +28,27 @@ export class MessageContext extends Message {
 
 		return this.send("message", params);
 	}
-	
+
+	private attach<TAttachmentType extends AttachmentTypes>(
+		method: TAttachmentType, 
+		params: SendAttachmentParams<TAttachmentType> 
+	) {
+		if (typeof params === "string")
+			params = { 
+				[method]: (/^http/i.test(params) 
+					? params 
+					: { file_id: params }
+				)
+			} as AttachmentSendParams<TAttachmentType>;
+		else if (params instanceof Attachment)
+			params = {
+				[method]: {
+					file_id: params.id
+				}
+			} as AttachmentSendParams<TAttachmentType>;
+
+		return this.send(method, params as AttachmentSendParams<TAttachmentType>);
+	}
 	private reply(method: string, params: Partial<IBaseSendParams>) {
 		params.reply_to_message_id = this.id;
 		return this.send(method, params);
