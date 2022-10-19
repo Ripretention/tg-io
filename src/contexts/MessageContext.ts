@@ -4,7 +4,7 @@ import {Message} from "../models/Message";
 import {IMessage} from "../types/IMessage";
 import {AttachmentSendParams, AttachmentTypes, IBaseSendParams, InputFile} from "../types/ISendParams";
 import {IUpdateCollection} from "../types/IUpdate";
-import {StringUtils} from "../Utils";
+import {ObjectUtils, StringUtils} from "../Utils";
 
 type SendMessageParams = string | { text: string } & Partial<IBaseSendParams>;
 type SendAttachmentParams<TAttachment extends AttachmentTypes> = AttachmentSendParams<TAttachment> | InputFile | Attachment<any>;
@@ -29,7 +29,7 @@ export class MessageContext extends Message {
 		return this.send("message", params);
 	}
 
-	private attach<TAttachmentType extends AttachmentTypes>(
+	public attach<TAttachmentType extends AttachmentTypes>(
 		method: TAttachmentType, 
 		params: SendAttachmentParams<TAttachmentType> 
 	) {
@@ -45,6 +45,13 @@ export class MessageContext extends Message {
 				[method]: {
 					file_id: params.id
 				}
+			} as AttachmentSendParams<TAttachmentType>;
+		else if (params.hasOwnProperty("file_id"))
+			params = {
+				[method]: {
+					file_id: params["file_id"],
+				},
+				...(ObjectUtils.filterObjectByKey(params, k => k !== "file_id"))
 			} as AttachmentSendParams<TAttachmentType>;
 
 		return this.send(method, params as AttachmentSendParams<TAttachmentType>);
