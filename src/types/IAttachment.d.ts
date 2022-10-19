@@ -35,3 +35,13 @@ export interface IVideoNoteAttachment extends IAttachment {
 export interface IVoiceAttachment extends IAttachment {
 	duration: number;
 }
+
+export interface IStickerAttachment extends IPhotoAttachment {
+	type: "regular" | "mask" | "custom_emoji";
+	is_animated: boolean;
+	is_video: boolean;
+	thumb?: IPhotoAttachment;
+	set_name?: string;
+	emoji?: string;
+}
+
