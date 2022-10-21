@@ -2,17 +2,16 @@
 	"name": "tg-io",
 	"version": "1.0.0",
 	"description": "Useful and fast library for Telegram Bots",
-	"main": "index.js",
+	"main": "lib/index.js",
 	"scripts": {
 		"watch": "tsc -p tsconfig.build.json --watch",
 		"test": "jest --config jest.config.json --maxWorkers=1",
 		"lint": "eslint . --ext .ts",
 		"lint-fix": "eslint . --ext .ts --fix",
-		"start": "node dist/index.js",
 		"build": "tsc -p tsconfig.build.json",
 		"postinstall": "tsc -p tsconfig.build.json",
-		"wDebug": "@powershell -Command $env:DEBUG='*';node dist/index.js",
-		"uDebug": "DEBUG=* node dist/index.js"
+		"wDebug": "@powershell -Command $env:DEBUG='*';node lib/index.js",
+		"uDebug": "DEBUG=* node lib/index.js"
 	},
 	"keywords": [
 		"Telegram",
