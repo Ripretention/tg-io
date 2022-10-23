@@ -1,3 +1,5 @@
+import {IMessageEntity} from "./IMessageEntity";
+
 export interface IBaseSendParams {
 	chat_id: number | string;
 	reply_to_message_id?: number;
@@ -9,6 +11,7 @@ export interface IBaseSendParams {
 
 export interface IMessageSendParams extends IBaseSendParams {
 	text: string;
+	entities?: IMessageEntity[];
 }
 
 export type InputFile = string | { file_id: string };
