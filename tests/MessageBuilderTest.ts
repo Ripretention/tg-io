@@ -28,7 +28,7 @@ describe("basic message entities", () => {
 		});
 	});
 });
-describe("comples structure of message entities", () => {
+describe("complex structure of message entities", () => {
 	test("should return bold plus italic text", () => {
 		let params =  MessageBuilder.build(f => 
 			`${f.bold("bold")} but ${f.italic("italic")}`

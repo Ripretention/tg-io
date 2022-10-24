@@ -1,5 +1,6 @@
 import {IMessageEntity, MessageEntityType} from "./types/IMessageEntity";
 import {IMessageSendParams} from "./types/ISendParams";
+import {IUser} from "./types/IUser";
 import {ObjectUtils} from "./Utils";
 
 export class MessageBuilder {
@@ -43,6 +44,41 @@ class MessageBuilderComponent {
 		return this.entities[entityId];
 	}
 
+	public mention(content: string) {
+		return this.add(content, {
+			type: "mention"
+		});
+	}
+	public hashtag(content: string) {
+		return this.add(content, {
+			type: "hashtag"
+		});
+	}
+	public cashtag(content: string) {
+		return this.add(content, {
+			type: "cashtag"
+		});
+	}
+	public command(content: string) {
+		return this.add(content, {
+			type: "bot_command"
+		});
+	}
+	public url(content: string) {
+		return this.add(content, {
+			type: "url"
+		});
+	}
+	public email(content: string) {
+		return this.add(content, {
+			type: "email"
+		});
+	}
+	public phone(content: string) {
+		return this.add(content, {
+			type: "phone_number"
+		});
+	}
 	public bold(content: string) {
 		return this.add(content, {
 			type: "bold"
@@ -51,6 +87,50 @@ class MessageBuilderComponent {
 	public italic(content: string) {
 		return this.add(content, {
 			type: "italic"
+		});
+	}
+	public underline(content: string) {
+		return this.add(content, {
+			type: "underline"
+		});
+	}
+	public strikethrough(content: string) {
+		return this.add(content, {
+			type: "strikethrough"
+		});
+	}
+	public spoiler(content: string) {
+		return this.add(content, {
+			type: "spoiler"
+		});
+	}
+	public code(content: string) {
+		return this.add(content, {
+			type: "code"
+		});
+	}
+	public pre(content: string, language: string) {
+		return this.add(content, {
+			type: "pre",
+			language
+		});
+	}
+	public textLink(content: string, url: string) {
+		return this.add(content, {
+			type: "text_link",
+			url
+		});
+	}
+	public textMention(content: string, user: IUser) {
+		return this.add(content, {
+			type: "text_mention",
+			user	
+		});
+	}
+	public emoji(content: string, emoji: string) {
+		return this.add(content, {
+			type: "custom_emoji",
+			custom_emoji: emoji	
 		});
 	}
 

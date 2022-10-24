@@ -8,4 +8,8 @@ export class Tg {
 	public readonly updates = new UpdateHandler(this.api);
 	public readonly polling = new Polling(this.api);
 }
-export { Api as TgApi, Polling as TgPolling, UpdateHandler as TgUpdateHandler };
+export { 
+	Api as TgApi, 
+	Polling as TgPolling, 
+	UpdateHandler as TgUpdateHandler 
+};
