@@ -16,7 +16,7 @@ tg.updates.hearCommand(/^\/echo (.+)/i, ctx =>
 );
 
 async function run() {
-  await tg.polling.start(tg.updates);
+  await tg.startPolling();
 }
 run().catch(console.error);
 ```

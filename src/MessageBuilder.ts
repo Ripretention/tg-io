@@ -141,7 +141,7 @@ class MessageBuilderComponent {
 		if (content.includes(this.id)) {
 			let { 1: id } = content.match(/id([^\]]+)/);
 			this.entities[id].types.push(entity);
-			return "";
+			return content;
 		}
 
 		let id = `${Math.random()}${content.length}`;
