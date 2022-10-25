@@ -1,14 +1,18 @@
-import { Api } from "./Api"; 
-import { UpdateHandler } from "./UpdateHandler";
-import { IUpdateCollection } from "./types/IUpdate";
+import {Api} from "./Api"; 
+import * as debug from "debug";
+import {UpdateHandler} from "./UpdateHandler";
+import {IUpdateCollection} from "./types/IUpdate";
 
 export class Polling {
+	private log = debug("tg-io:polling");	
 	private state = PollingState.NotLaunched;
 	constructor(private readonly api: Api) {}
 
 	public async start(handler: UpdateHandler) {
 		if (this.state === PollingState.Working)
 			return;
+
+		this.log("started");
 
 		let offset = null;
 		this.state = PollingState.Working;
@@ -20,6 +24,13 @@ export class Polling {
 				offset = update.update_id+1;
 			}
 		}
+	}
+	public stop() {
+		if (this.state !== PollingState.Working)
+			return;
+
+		this.log("stopped");
+		this.state = PollingState.Stopped;
 	}
 }
 export enum PollingState {

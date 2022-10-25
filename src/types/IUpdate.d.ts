@@ -1,5 +1,10 @@
 import { IMessage } from "./IMessage";
 
+export interface IUpdateFailed {
+	ok: boolean;
+	error_code: number;
+	description: string;
+}
 export interface IUpdateCollection {
 	ok: boolean;
 	result: IUpdate[]

@@ -4,11 +4,11 @@ export class ApiMock {
 	public api = new Api("");
 	public callbacks: ((method: string, params: Record<string, any>) => any)[] = [];
 	constructor() {
-		this.api.callMethod = (method, params) => {
+		this.api.callMethod = ((method, params) => {
 			for (let callback of this.callbacks)
 				callback(method, params);
-			return Promise.resolve();
-		};
+			return Promise.resolve({ ok: true });
+		}) as typeof this.api.callMethod;
 	}
 
 	public get() {

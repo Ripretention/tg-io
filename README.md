@@ -20,3 +20,14 @@ async function run() {
 }
 run().catch(console.error);
 ```
+
+## Elastic work with text styles
+```typescript
+import { TgMessageBuilder } from "tg-io";
+
+tg.updates.hearCommand(^\/gimme bold (.+)/i, ctx =>
+  ctx.replyMessage(TgMessageBuilder.build(f =>
+	`take your ${f.italic("bold")}. dude: ${f.bold(ctx.match[1])}`
+  ))
+);
+```
