@@ -25,9 +25,9 @@ run().catch(console.error);
 ```typescript
 import { TgMessageBuilder } from "tg-io";
 
-tg.updates.hearCommand(^\/gimme bold (.+)/i, ctx =>
+tg.updates.hearCommand(/^\/gimme bold (.+)/i, ctx =>
   ctx.replyMessage(TgMessageBuilder.build(f =>
-	`take your ${f.italic("bold")}. dude: ${f.bold(ctx.match[1])}`
+    `take your ${f.italic("bold")}. dude: ${f.bold(ctx.match[1])}`
   ))
 );
 ```

@@ -14,6 +14,18 @@ export class MessageContext extends Message {
 		super(source);
 	}
 
+	public delete(msgId = this.id) {
+		if (!this.chat)
+			throw new Error("delete message is supported only in chats");
+
+		let params = {
+			msg_id: msgId,
+			chat_id: this.chat.id
+		};
+
+		return this.api.callMethod("deleteMessage", params);
+	}
+
 	public replyMessage(params: SendMessageParams): Promise<IUpdateCollection> {
 		params = typeof params === "string" 
 			? { text: params } 
@@ -62,6 +74,6 @@ export class MessageContext extends Message {
 	}
 	private send(method: string, params: Partial<IBaseSendParams>) {
 		params.chat_id = this.chat.id;
-		return this.api.callMethod(`send${StringUtils.capitalizeFirst(method)}`, params);
+		return this.api.callMethod<IUpdateCollection>(`send${StringUtils.capitalizeFirst(method)}`, params);
 	}
 }

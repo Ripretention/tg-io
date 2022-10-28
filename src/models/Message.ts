@@ -10,8 +10,9 @@ export class Message extends Entity<IMessage> {
 	public readonly sender = this.construct("from", User);
 	public readonly chat = this.construct("chat", Chat);
 	public readonly repliedMessage = this.construct("reply_to_message", Message);
-	public text = this.get("text");
+	public text = this.get("text") ?? this.get("caption");
 
+	public entities = this.get("entities");
 	public audio = this.construct("audio", Audio);
 	public voice = this.construct("voice", Voice);
 	public video = this.construct("video", Video);
@@ -20,4 +21,17 @@ export class Message extends Entity<IMessage> {
 	public photo = this.get("photo")
 		? this.get("photo").map(photo => new Photo(photo))
 		: []; 
+
+	public get hasAttachments() {
+		return [
+			this.audio, 
+			this.video, 
+			this.voice, 
+			this.videoNote, 
+			this.document, 
+			this.photo.length 
+				? this.photo 
+				: null
+		].some(attachment => attachment != null);
+	}
 }
