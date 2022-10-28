@@ -11,8 +11,9 @@ export class Message extends Entity<IMessage> {
 	public readonly chat = this.construct("chat", Chat);
 	public readonly repliedMessage = this.construct("reply_to_message", Message);
 	public text = this.get("text") ?? this.get("caption");
+	public entities = this.get("entities") ?? this.get("caption_entities");
 
-	public entities = this.get("entities");
+	// attachments
 	public audio = this.construct("audio", Audio);
 	public voice = this.construct("voice", Voice);
 	public video = this.construct("video", Video);

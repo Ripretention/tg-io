@@ -2,9 +2,10 @@ import {Api} from "../Api";
 import {Attachment} from "../models/attachments";
 import {Message} from "../models/Message";
 import {IMessage} from "../types/IMessage";
-import {AttachmentSendParams, AttachmentTypes, IBaseSendParams, InputFile} from "../types/ISendParams";
+import {AttachmentSendParams, AttachmentTypes, IBaseSendParams, InputFile} from "../types/params/ISendParams";
 import {IUpdateCollection} from "../types/IUpdate";
 import {ObjectUtils, StringUtils} from "../Utils";
+import {ICaptionEditParams, ITextEditParams} from "../types/params/IEditParams";
 
 type SendMessageParams = string | { text: string } & Partial<IBaseSendParams>;
 type SendAttachmentParams<TAttachment extends AttachmentTypes> = AttachmentSendParams<TAttachment> | InputFile | Attachment<any>;
@@ -14,12 +15,33 @@ export class MessageContext extends Message {
 		super(source);
 	}
 
+	public editText(text: string = this.text, params?: ITextEditParams | ICaptionEditParams) {
+		if (!this.chat)
+			throw new Error("delete message is supported only in chats");
+
+		let isCaptionEdit = (params && params.message_id) || this.hasAttachments;
+		params = {
+			chat_id: this.chat.id,
+			...(isCaptionEdit 
+				? {
+					caption: text
+				}
+				: { text }
+			),
+			...(params ?? {})
+		};
+
+		return this.api.callMethod(isCaptionEdit 
+			? "editMessageCaption" 
+			: "editMessageText",
+		params);
+	}
 	public delete(msgId = this.id) {
 		if (!this.chat)
 			throw new Error("delete message is supported only in chats");
 
 		let params = {
-			msg_id: msgId,
+			message_id: msgId,
 			chat_id: this.chat.id
 		};
 

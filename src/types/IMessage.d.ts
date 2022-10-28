@@ -10,9 +10,11 @@ export interface IMessage {
 	from?: IUser;
 	chat?: IChat;
 	reply_to_message?: Omit<IMessage, "reply_to_message">;
-
-	caption?: string;
 	entities?: IMessageEntity[];
+	caption?: string;
+	caption_entities?: string;
+
+	// attachments
 	audio?: IAudioAttachment;
 	document?: IDocumentAttachment;
 	video?: IVideoAttachment;

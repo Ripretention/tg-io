@@ -1,4 +1,4 @@
-import {IMessageEntity} from "./IMessageEntity";
+import {IMessageEntity} from "../IMessageEntity";
 
 export interface IBaseSendParams {
 	chat_id: number | string;
