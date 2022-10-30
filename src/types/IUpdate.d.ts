@@ -1,3 +1,4 @@
+import {ICallbackQuery} from "./ICallbackQuery";
 import { IMessage } from "./IMessage";
 
 export interface IUpdateFailed {
@@ -12,5 +13,6 @@ export interface IUpdateCollection {
 export interface IUpdate {
 	update_id: number;
 	message?: IMessage;
+	callback_query?: ICallbackQuery;
 	[key: string]: any;
 }
