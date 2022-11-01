@@ -9,7 +9,9 @@ export interface IKeyboardButton {
 	readonly text: string;
 	request_contact?: boolean;
 	request_location?: boolean;
-	request_poll?: boolean;
+	request_poll?: {
+		type: "quiz" | "regular"
+	};
 }
 
 export interface IInlineKeyboard {
