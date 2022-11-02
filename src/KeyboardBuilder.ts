@@ -9,7 +9,7 @@ export abstract class BaseKeyboardBuilder<TButton extends BaseButton> {
 
 	public add(btn: TButton) {
 		let lastRow = this.buttons.length-1;
-		if (!this.buttons[lastRow] || this.buttons[lastRow].length > 8) {
+		if (!this.buttons[lastRow] || this.buttons[lastRow].length >= 8) {
 			this.wrap();
 			lastRow++;
 		}
@@ -20,6 +20,9 @@ export abstract class BaseKeyboardBuilder<TButton extends BaseButton> {
 	public wrap() {
 		this.buttons.push([]);
 		return this;
+	}
+	public clear() {
+		this.buttons = [];
 	}
 	public abstract createButton(...args: any[]): this;
 	public abstract build(): string;
