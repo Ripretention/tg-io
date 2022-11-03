@@ -1,5 +1,5 @@
 export interface IKeyboard {
-	keyboard: IKeyboardButton[];
+	keyboard: IKeyboardButton[][];
 	resize_keyboard?: boolean;
 	one_time_keyboard?: boolean;
 	input_field_placeholder?: string;
@@ -13,9 +13,13 @@ export interface IKeyboardButton {
 		type: "quiz" | "regular"
 	};
 }
+export interface IKeyboardRemove {
+	remove_keyboard: boolean;
+	selective?: boolean;
+}
 
 export interface IInlineKeyboard {
-	keyboard: IInlineKeyboardButton[];
+	inline_keyboard: IInlineKeyboardButton[][];
 }
 export interface IInlineKeyboardButton {
 	text: string;

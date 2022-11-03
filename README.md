@@ -31,3 +31,18 @@ tg.updates.hearCommand(/^\/gimme bold (.+)/i, ctx =>
   ))
 );
 ```
+
+## Flexible way to interract with buttons
+```typescript
+import { TgKeyboard } from "tg-io";
+
+tg.updates.hearCommand(/^\/i wanna some buttons/i, async ctx =>
+  let keyboard = tg.createKeyboard();
+  let reqBtn = new TgKeyboard.Button("and me too..", "location");
+  keyboard
+	.create("click me NOW!")
+	.add(reqBtn);
+
+  return await ctx.replyMessage(keyboard.build());
+);
+```

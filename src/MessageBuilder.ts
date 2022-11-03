@@ -1,5 +1,5 @@
 import {IMessageEntity, MessageEntityType} from "./types/IMessageEntity";
-import {IMessageSendParams} from "./types/ISendParams";
+import {IMessageSendParams} from "./types/params/ISendParams";
 import {IUser} from "./types/IUser";
 import {ObjectUtils} from "./Utils";
 

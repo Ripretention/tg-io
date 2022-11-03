@@ -1,3 +1,4 @@
+import {IInlineKeyboard, IKeyboard} from "../IKeyboard";
 import {IMessageEntity} from "../IMessageEntity";
 
 export interface IBaseSendParams {
@@ -7,6 +8,7 @@ export interface IBaseSendParams {
 	protect_content?: boolean;
 	disable_notification?: boolean;
 	allow_sending_without_reply?: boolean;
+	reply_markup?: IInlineKeyboard | IKeyboard; 
 }
 
 export interface IMessageSendParams extends IBaseSendParams {

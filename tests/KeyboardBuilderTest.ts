@@ -15,9 +15,9 @@ describe("Inline Keyboard Builder", () => {
 		let currentChatQueryBtn = new InlineButton({ text: "don't click me", switchCurrentChatQuery: "what did i tell u?" });
 		keyboard.add(currentChatQueryBtn);
 
-		let result = keyboard.build();
+		let { reply_markup: result } = keyboard.build();
 
-		expect(JSON.parse(result)).toStrictEqual({
+		expect(result).toStrictEqual({
 			inline_keyboard: [
 				[
 					{ text: cbBtn.text, callback_data: cbBtn.payload },
@@ -32,7 +32,7 @@ describe("Inline Keyboard Builder", () => {
 		for (let i = 0; i < 10; i++)
 			keyboard.createButton({ text: "btn", payload: "64" });
 
-		let result = JSON.parse(keyboard.build())["inline_keyboard"];
+		let result = keyboard.build()["reply_markup"]["inline_keyboard"];
 
 		expect(result[0].length).toBe(8);
 		expect(result.length).toBe(2);
@@ -49,7 +49,7 @@ describe("Keyboard Builder", () => {
 		let pollQuizBtn = new Button("text", "poll_quiz"); 
 		let pollRegularBtn = new Button("text", "poll_regular"); 
 
-		let result = keyboard
+		let { reply_markup: result } = keyboard
 			.add(textBtn)
 			.add(contactBtn)
 			.add(locationBtn)
@@ -57,7 +57,7 @@ describe("Keyboard Builder", () => {
 			.add(pollRegularBtn)
 			.build();
 
-		expect(JSON.parse(result)).toStrictEqual({
+		expect(result).toStrictEqual({
 			keyboard: [
 				[
 					{},
@@ -76,9 +76,9 @@ describe("Keyboard Builder", () => {
 			.setSelective()
 			.setPlaceholder("hello");
 
-		let result = keyboard.build();
+		let { reply_markup: result } = keyboard.build();
 
-		expect(JSON.parse(result)).toStrictEqual({
+		expect(result).toStrictEqual({
 			keyboard: [],
 			one_time_keyboard: true,
 			resize_keyboard: true,

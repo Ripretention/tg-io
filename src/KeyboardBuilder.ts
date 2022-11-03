@@ -1,4 +1,5 @@
-import {IKeyboardButton} from "./types/IKeyboard";
+import {IInlineKeyboardButton, IKeyboardButton} from "./types/IKeyboard";
+import {IMessageSendParams} from "./types/params/ISendParams";
 
 export abstract class BaseButton {
 	constructor(public readonly text: string) {}
@@ -25,7 +26,7 @@ export abstract class BaseKeyboardBuilder<TButton extends BaseButton> {
 		this.buttons = [];
 	}
 	public abstract createButton(...args: any[]): this;
-	public abstract build(): string;
+	public abstract build(): Pick<IMessageSendParams, "reply_markup">;
 }
 
 export class InlineButton extends BaseButton {
@@ -47,7 +48,7 @@ export class InlineButton extends BaseButton {
 	}
 
 	public toObject() {
-		let btn = {
+		let btn: IInlineKeyboardButton = {
 			text: this.text,
 			callback_data: this.payload,
 			url: this.url,
@@ -57,17 +58,19 @@ export class InlineButton extends BaseButton {
 
 		return Object.entries(btn)
 			.filter(([_, v]) => v != null)
-			.reduce((acc, [key, val]) => ({ [key]: val, ...acc }), {});
+			.reduce((acc, [key, val]) => ({ [key]: val, ...acc }), {}) as IInlineKeyboardButton;
 	}
 }
 export class InlineKeyboardBuilder extends BaseKeyboardBuilder<InlineButton> {
 	public createButton(...args: ConstructorParameters<typeof InlineButton>) {
 		return this.add(new InlineButton(...args));
 	}
-	public build(): string {
-		return JSON.stringify({
-			inline_keyboard: this.buttons.map(row => row.map(btn => btn.toObject()))
-		});
+	public build() {
+		return {
+			reply_markup: {
+				inline_keyboard: this.buttons.map(row => row.map(btn => btn.toObject()))
+			}
+		};
 	}
 }
 
@@ -119,10 +122,19 @@ export class KeyboardBuilder extends BaseKeyboardBuilder<Button> {
 	public createButton(...args: ConstructorParameters<typeof Button>) {
 		return this.add(new Button(...args));
 	}
-	public build(): string {
+	public build() {
+		return {
+			reply_markup: {
+				keyboard: this.buttons.map(row => row.map(btn => btn.toObject())),
+				...this.additionalOptions
+			}
+		};
+	}
+
+	public static remove(remove = true, selective = false) {
 		return JSON.stringify({
-			keyboard: this.buttons.map(row => row.map(btn => btn.toObject())),
-			...this.additionalOptions
+			remove_keyboard: remove,
+			selective
 		});
 	}
 }
