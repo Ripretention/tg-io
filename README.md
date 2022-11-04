@@ -41,8 +41,19 @@ tg.updates.hearCommand(/^\/i wanna some buttons/i, async ctx =>
   let reqBtn = new TgKeyboard.Button("and me too..", "location");
   keyboard
 	.create("click me NOW!")
-	.add(reqBtn);
+	.add(reqBtn)
+	.setOneTime()
+	.setSelective("YES");
 
   return await ctx.replyMessage(keyboard.build());
+);
+tg.updates.hearCommand(/^\/i wanna some INLINE buttons/i, async ctx =>
+  let keyboard = tg.createInlineKeyboard();
+  keyboard
+	.create({ text: "im a cb?", payload: "yes." })
+	.create({ text: "or maybe.. a link??", url: "https://www.youtube.com/watch?v=oHg5SJYRHA0" })
+	.create({ text: "yep!", switchCurrentChatQuery: "nope..." });
+
+  return await ctx.replyMessage({ text: "ive some buttons :) ", ...keyboard.build() });
 );
 ```
