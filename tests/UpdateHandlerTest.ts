@@ -1,3 +1,4 @@
+import {CallbackQueryContext} from "../src/contexts/CallbackQueryContext";
 import { IUpdate } from "../src/types/IUpdate";
 import { UpdateHandler } from "../src/UpdateHandler";
 let handler: UpdateHandler; 
@@ -46,6 +47,57 @@ describe("onUpdate", () => {
 		await handler.handle(update);
 
 		expect(handledUpdateCount).toBe(2);
+	});
+});
+
+describe("hearCallbackQuery", () => {
+	let update: IUpdate = {
+		update_id: 2,
+		callback_query: {
+			id: "qwe123",
+			chat_instance: "qwe",
+			from: {
+				id: 1,
+				frist_name: "Durov"
+			},
+			data: "nodata"
+		}
+	};
+	test("should match 7 handlers", async () => {
+		let handleCounter = 0;
+		let fn = (_: any, next: () => void) => {
+			handleCounter++;
+			next();
+		};
+		handler.hearCallbackQuery(["test 1", "test 2"], fn);
+		handler.hearCallbackQuery("test 3", fn);
+		handler.hearCallbackQuery(/test [1-4]/, fn);
+
+		for (let i = 0; i < 10; i++) {
+			update.callback_query.data = "test " + i;
+			await handler.handle(update);
+		}
+
+		expect(handleCounter).toBe(7);
+	});
+	test("check validity of CallbackQueryContext parsing", async () => {
+		let ctx: CallbackQueryContext;
+		let { callback_query: query } = update;
+		query.data = "somedatahere!";
+		query.message = {
+			message_id: 21,
+			date: 1,
+			from: query.from,
+			text: "heyoo!"
+		};
+		handler.hearCallbackQuery(/somedatahere(.+)/i, (evt) => { ctx = evt; });
+
+		await handler.handle(update);
+
+		expect(ctx.data).toBe("somedatahere!");
+		expect(ctx.match.join("")).toBe("somedatahere!!");
+		expect(ctx.sender.id).toBe(ctx.message.sender.id);
+		expect(ctx.message.text).toBe("heyoo!");
 	});
 });
 

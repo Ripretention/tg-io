@@ -1,9 +1,11 @@
 import {Api} from "./Api";
+import {CallbackQueryContext} from "./contexts/CallbackQueryContext";
 import {MessageContext} from "./contexts/MessageContext";
+import {ICallbackQuery} from "./types/ICallbackQuery";
 import {IMessage} from "./types/IMessage";
 import {IUpdate} from "./types/IUpdate";
 
-export type CommandMatch = string | string[] | RegExp;
+type TextMatch = string | string[] | RegExp;
 export type UpdateHandlerFn<TUpdate> = (context: TUpdate, next: () => void) => any;
 export class UpdateHandler {
 	constructor(private readonly api: Api) {}
@@ -42,15 +44,26 @@ export class UpdateHandler {
 			this.updates[updateKind] = [];
 		this.updates[updateKind].push((upd, next) => handler(upd[updateKind], next));
 	}
-	public hearCommand(match: CommandMatch, handler: UpdateHandlerFn<MessageContext>) {
+	public hearCallbackQuery(match: TextMatch, handler: UpdateHandlerFn<CallbackQueryContext>) {
+		this.onUpdate<ICallbackQuery>("callback_query", (upd, next) => {
+			let { data } = upd ?? {};
+
+			if (this.testTextMatch(data, match)) {
+				let ctx = new CallbackQueryContext(this.api, upd);
+				ctx.match = match instanceof RegExp 
+					? data.match(match) 
+					: [];
+				return handler(ctx, next);
+			}
+
+			return next();
+		});
+	}
+	public hearCommand(match: TextMatch, handler: UpdateHandlerFn<MessageContext>) {
 		this.onUpdate<IMessage>("message", (upd, next) => {
 			let { text } = upd ?? {};
 
-			if (
-				(typeof match === "string" && text === match) ||
-				(Array.isArray(match) && match.some(t => t === text)) ||
-				(match as RegExp).test(text)
-			) {
+			if (this.testTextMatch(text, match)) {
 				let msg = new MessageContext(this.api, upd);
 				msg.match = match instanceof RegExp 
 					? text.match(match) 
@@ -60,6 +73,13 @@ export class UpdateHandler {
 
 			return next();
 		});
+	}
+	private testTextMatch(text: string, match: TextMatch) {
+		return (
+			(typeof match === "string" && text === match) ||
+			(Array.isArray(match) && match.some(t => t === text)) ||
+			(match instanceof RegExp && match.test(text))
+		);
 	}
 	public onMessageEvent(event: string, handler: UpdateHandlerFn<MessageContext>) {
 		this.onUpdate<IMessage>("message", (upd, next) => upd.hasOwnProperty(event)
