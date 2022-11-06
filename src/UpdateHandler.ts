@@ -44,10 +44,8 @@ export class UpdateHandler {
 	}
 	public hearCommand(match: CommandMatch, handler: UpdateHandlerFn<MessageContext>) {
 		this.onUpdate<IMessage>("message", (upd, next) => {
-			if ((upd?.text ?? "") === "")
-				return next();
+			let { text } = upd ?? {};
 
-			let { text } = upd;
 			if (
 				(typeof match === "string" && text === match) ||
 				(Array.isArray(match) && match.some(t => t === text)) ||
@@ -59,6 +57,8 @@ export class UpdateHandler {
 					: [];
 				return handler(msg, next);
 			}
+
+			return next();
 		});
 	}
 	public onMessageEvent(event: string, handler: UpdateHandlerFn<MessageContext>) {
