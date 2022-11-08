@@ -1,11 +1,11 @@
 import {IInlineKeyboardButton, IKeyboardButton} from "./types/IKeyboard";
 import {IMessageSendParams} from "./types/params/ISendParams";
 
-export abstract class BaseButton {
+abstract class BaseButton {
 	constructor(public readonly text: string) {}
 	public abstract toObject(): Record<string, any>;
 }
-export abstract class BaseKeyboardBuilder<TButton extends BaseButton> {
+abstract class BaseKeyboardBuilder<TButton extends BaseButton> {
 	protected buttons: TButton[][] = [];
 
 	public add(btn: TButton) {
