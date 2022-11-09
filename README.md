@@ -57,3 +57,18 @@ tg.updates.hearCommand(/^\/i wanna some INLINE buttons/i, async ctx => {
   return await ctx.replyMessage({ text: "ive some buttons :) ", ...keyboard.build() });
 });
 ```
+
+## Expandable basic entities 
+```typescript
+import {TgContext} from "tg-io";
+class CustomMessageContext extends TgContext.Message {
+  public isAdmin = () => this.sender.id === 1;
+  public answer = (text: string) => 
+    this.sendMessage(MessageBuilder.build(b => `@${b.mention(this.sender.username)}, ${text}`));
+}
+
+tg.updates.setContext("message", CustomMessageContext);
+tg.updates.hearCommand<CustomMessageContext>("/durovtest", ctx => 
+  ctx.answer("u are... " + ctx.isAdmin ? "durov!" : "nobody..")
+);
+```

@@ -3,6 +3,7 @@ import {Polling} from "./src/Polling";
 import {UpdateHandler} from "./src/UpdateHandler";
 import {MessageBuilder} from "./src/MessageBuilder";
 import * as Keyboard from "./src/KeyboardBuilder";
+import * as Context from "./src/contexts";
 
 export class Tg {
 	constructor(private readonly token: string) {}
@@ -23,5 +24,6 @@ export {
 	Polling as TgPolling, 
 	UpdateHandler as TgUpdateHandler,
 	MessageBuilder as TgMessageBuilder,
-	Keyboard as TgKeyboard
+	Keyboard as TgKeyboard,
+	Context as TgContext,
 };
