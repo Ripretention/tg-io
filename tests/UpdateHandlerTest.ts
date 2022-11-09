@@ -1,4 +1,6 @@
 import {CallbackQueryContext} from "../src/contexts/CallbackQueryContext";
+import {MessageContext} from "../src/contexts/MessageContext";
+import {CallbackQuery} from "../src/models/CallbackQuery";
 import { IUpdate } from "../src/types/IUpdate";
 import { UpdateHandler } from "../src/UpdateHandler";
 let handler: UpdateHandler; 
@@ -183,4 +185,53 @@ describe("onMessageEvent", () => {
 
 		expect(handledEvents).toBe(3);
 	});
+});
+
+describe("setContext", () => {
+	test("should replace basic message context on custom", async () => {
+		let update = baseUpdate;
+		let testMessagePayload: string;
+		handler.setContext("message", TestMessage);
+		handler.hearCommand(/^\/test/, (ctx: TestMessage) => {
+			testMessagePayload = ctx.toString();
+		});
+
+		await handler.handle(update);
+
+		expect(testMessagePayload).toBe(`${update.message.message_id}: has test message no data`);
+	});
+	class TestMessage extends MessageContext {
+		public specialTestPayload: string;
+		public hasTestCommand = () => /^\/test/i.test(this.text);
+		public toString() {
+			return `${this.id}: ${this.hasTestCommand ? "has test message" : ""} ${this.specialTestPayload ?? "no data"}`;
+		}
+	}
+
+	test("should replace basic callback query context on custom", async () => {
+		let ctx: TestCallbackQuery;
+		let update: IUpdate = {
+			update_id: 2,
+			callback_query: {
+				id: "qwe123",
+				chat_instance: "qwe",
+				from: {
+					id: 1,
+					frist_name: "Durov"
+				},
+				data: "nodata"
+			}
+		};
+		handler.setContext("callback_query", TestCallbackQuery);
+		handler.hearCallbackQuery<TestCallbackQuery>("nodata", evt => { ctx = evt; });
+
+		await handler.handle(update);
+
+		expect(ctx.appeal).toBe("Durov");
+	});
+	class TestCallbackQuery extends CallbackQueryContext {
+		public get appeal() {
+			return this.sender.firstname;
+		}
+	}
 });

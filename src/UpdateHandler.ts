@@ -5,11 +5,19 @@ import {ICallbackQuery} from "./types/ICallbackQuery";
 import {IMessage} from "./types/IMessage";
 import {IUpdate} from "./types/IUpdate";
 
+type EventContexts = {
+	message: MessageContext,
+	callback_query: CallbackQueryContext
+};
 type TextMatch = string | string[] | RegExp;
 export type UpdateHandlerFn<TUpdate> = (context: TUpdate, next: () => void) => any;
 export class UpdateHandler {
 	constructor(private readonly api: Api) {}
 
+	private contextCtorStorage: Record<keyof EventContexts, (new (...args: any[]) => any)> = {
+		message: MessageContext,
+		callback_query: CallbackQueryContext
+	};
 	private baseHandler: UpdateHandlerFn<IUpdate> = null;
 	private updates: { [kind: string]: UpdateHandlerFn<any>[] } = {};
 
@@ -36,6 +44,12 @@ export class UpdateHandler {
 		}
 	}
 
+	public setContext<TEvent extends keyof EventContexts, TContext extends EventContexts[TEvent]>(
+		event: TEvent, 
+		ctor: new (...args: any[]) => TContext
+	) {
+		this.contextCtorStorage[event] = ctor;
+	}
 	public use(handler: UpdateHandlerFn<IUpdate>) {
 		this.baseHandler = handler;
 	}
@@ -44,46 +58,40 @@ export class UpdateHandler {
 			this.updates[updateKind] = [];
 		this.updates[updateKind].push((upd, next) => handler(upd[updateKind], next));
 	}
-	public hearCallbackQuery(match: TextMatch, handler: UpdateHandlerFn<CallbackQueryContext>) {
-		this.onUpdate<ICallbackQuery>("callback_query", (upd, next) => {
-			let { data } = upd ?? {};
+	public hearCallbackQuery<TContext extends CallbackQueryContext>(match: TextMatch, handler: UpdateHandlerFn<TContext>) {
+		this.onUpdate<ICallbackQuery>("callback_query", this.hearEvent(match, handler, this.contextCtorStorage.callback_query, "data"));
+	}
+	public hearCommand<TContext extends MessageContext>(match: TextMatch, handler: UpdateHandlerFn<TContext>) {
+		this.onUpdate<IMessage>("message", this.hearEvent(match, handler, this.contextCtorStorage.message, "text"));
+	}
+	private hearEvent<TEvent, TContext extends { match: string[] }>(
+		match: TextMatch, 
+		handler: UpdateHandlerFn<TContext>, 
+		ctor: new (api: Api, source: TEvent) => TContext, 
+		matchSouce: keyof TEvent
+	) {
+		return (upd: TEvent, next: () => void) => {
+			let content = upd?.[matchSouce] as string;
 
-			if (this.testTextMatch(data, match)) {
-				let ctx = new CallbackQueryContext(this.api, upd);
-				ctx.match = match instanceof RegExp 
-					? data.match(match) 
+			let isMatched = (
+				(typeof match === "string" && content === match) ||
+				(Array.isArray(match) && match.some(t => t === content)) ||
+				(match instanceof RegExp && match.test(content))
+			);
+			if (isMatched) {
+				let evt = new ctor(this.api, upd);
+				evt.match = match instanceof RegExp 
+					? content.match(match) 
 					: [];
-				return handler(ctx, next);
+				return handler(evt, next);
 			}
 
 			return next();
-		});
-	}
-	public hearCommand(match: TextMatch, handler: UpdateHandlerFn<MessageContext>) {
-		this.onUpdate<IMessage>("message", (upd, next) => {
-			let { text } = upd ?? {};
-
-			if (this.testTextMatch(text, match)) {
-				let msg = new MessageContext(this.api, upd);
-				msg.match = match instanceof RegExp 
-					? text.match(match) 
-					: [];
-				return handler(msg, next);
-			}
-
-			return next();
-		});
-	}
-	private testTextMatch(text: string, match: TextMatch) {
-		return (
-			(typeof match === "string" && text === match) ||
-			(Array.isArray(match) && match.some(t => t === text)) ||
-			(match instanceof RegExp && match.test(text))
-		);
+		};
 	}
 	public onMessageEvent(event: string, handler: UpdateHandlerFn<MessageContext>) {
 		this.onUpdate<IMessage>("message", (upd, next) => upd.hasOwnProperty(event)
-			? handler(new MessageContext(this.api, upd), next)
+			? handler(new this.contextCtorStorage.message(this.api, upd), next)
 			: next()
 		);
 	}
