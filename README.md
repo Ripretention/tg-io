@@ -6,6 +6,11 @@
 ### ⚠️CAUTION
 Library is still under development
 
+## Installation
+```shell
+npm install tg-io
+```
+
 ## Basic usage
 ```typescript
 import { Tg } from "tg-io";
