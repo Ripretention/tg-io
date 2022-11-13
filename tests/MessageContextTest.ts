@@ -1,5 +1,6 @@
 import {MessageContext} from "../src/contexts/MessageContext";
 import {Photo} from "../src/models/attachments";
+import {IUpdate} from "../src/types/IUpdate";
 import {ApiMock} from "./utils/ApiMock";
 
 const apiMock = new ApiMock();
@@ -12,6 +13,23 @@ const msg = new MessageContext(api, {
 	},
 	message_id: Math.random()
 });
+function hearSendMethod(method: string, predicat: (p: any) => boolean, cb: () => any) {
+	apiMock.addCallback(`send${method}`, params => {
+		if (predicat(params))
+			cb();
+
+		return Promise.resolve({ 
+			ok: true, 
+			result: { 
+				message: {
+					message_id: 1,
+					date: Date.now(),
+					text: "hello!"
+				}
+			}
+		} as IUpdate);
+	});
+}
 
 beforeEach(() => {
 	apiMock.clear();
@@ -20,10 +38,11 @@ beforeEach(() => {
 describe("send text message", () => {
 	test("should send message by params argument", async () => {
 		let handled = false;
-		apiMock.addCallback("sendMessage", params => {
-			if (params["chat_id"] === msg.chat.id && /test message/.test(params.text))
-				handled = true;
-		});
+		hearSendMethod(
+			"Message", 
+			params => params["chat_id"] === msg.chat.id && /test message/.test(params.text),
+			() => { handled = true; }
+		);
 
 		await msg.sendMessage({ text: "hello, there's a test message" });
 
@@ -31,10 +50,11 @@ describe("send text message", () => {
 	});
 	test("should send message by string argument", async () => {
 		let handled = false;
-		apiMock.addCallback("sendMessage", params => {
-			if (/test message/.test(params.text))
-				handled = true;
-		});
+		hearSendMethod(
+			"Message", 
+			params => /test message/.test(params.text),
+			() => { handled = true; }
+		);
 
 		await msg.sendMessage("hello, there's a test message");
 
@@ -42,10 +62,11 @@ describe("send text message", () => {
 	});
 	test("should send message with reference (reply) on current message", async () => {
 		let handled = false;
-		apiMock.addCallback("sendMessage", params => {
-			if (params.reply_to_message_id === msg.id && /test message/.test(params.text))
-				handled = true;
-		});
+		hearSendMethod(
+			"Message", 
+			params => params.reply_to_message_id === msg.id && /test message/.test(params.text),
+			() => { handled = true; }
+		);
 
 		await msg.replyMessage("hello, there's a test message");
 
@@ -55,10 +76,11 @@ describe("send text message", () => {
 describe("send attachment (attach())", () => {
 	test("should send attachment by attachment class", async () => {
 		let handled = false;
-		apiMock.addCallback("sendPhoto", params => {
-			if (params.photo.file_id === "123")
-				handled = true;
-		});
+		hearSendMethod(
+			"Photo", 
+			params => params.photo.file_id === "123",
+			() => { handled = true; }
+		);
 
 		await msg.attach("photo", new Photo({
 			file_id: "123",
@@ -71,10 +93,11 @@ describe("send attachment (attach())", () => {
 	});
 	test("should send attachment by file_id", async () => {
 		let handled = false;
-		apiMock.addCallback("sendDocument", params => {
-			if (params.document.file_id === "id")
-				handled = true;
-		});
+		hearSendMethod(
+			"Document", 
+			params => params.document.file_id === "id",
+			() => { handled = true; }
+		);
 
 		await msg.attach("document", {
 			file_id: "id"
@@ -84,10 +107,11 @@ describe("send attachment (attach())", () => {
 	});
 	test("should send attachment by url", async () => {
 		let handled = false;
-		apiMock.addCallback("sendAudio", params => {
-			if (params.chat_id === msg.chat.id && /https/.test(params.audio))
-				handled = true;
-		});
+		hearSendMethod(
+			"Audio", 
+			params => params.chat_id === msg.chat.id && /https/.test(params.audio),
+			() => { handled = true; }
+		);
 
 		await msg.attach("audio", "https://someaudio.com/audio.mp3");
 

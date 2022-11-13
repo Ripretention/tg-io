@@ -1,6 +1,5 @@
 import {CallbackQueryContext} from "../src/contexts/CallbackQueryContext";
 import {MessageContext} from "../src/contexts/MessageContext";
-import {CallbackQuery} from "../src/models/CallbackQuery";
 import { IUpdateResult } from "../src/types/IUpdate";
 import { UpdateHandler } from "../src/UpdateHandler";
 let handler: UpdateHandler; 
