@@ -3,7 +3,7 @@ import {Attachment} from "../models/attachments";
 import {Message} from "../models/Message";
 import {IMessage} from "../types/IMessage";
 import {AttachmentSendParams, AttachmentTypes, IBaseSendParams, InputFile} from "../types/params/ISendParams";
-import {IUpdateCollection} from "../types/IUpdate";
+import {IUpdateResult, IUpdateCollection, IUpdate} from "../types/IUpdate";
 import {ObjectUtils, StringUtils} from "../Utils";
 import {ICaptionEditParams, ITextEditParams} from "../types/params/IEditParams";
 
@@ -48,7 +48,7 @@ export class MessageContext extends Message {
 		return this.api.callMethod("deleteMessage", params);
 	}
 
-	public replyMessage(params: SendMessageParams): Promise<IUpdateCollection> {
+	public replyMessage(params: SendMessageParams) {
 		params = typeof params === "string" 
 			? { text: params } 
 			: params;
@@ -94,8 +94,9 @@ export class MessageContext extends Message {
 		params.reply_to_message_id = this.id;
 		return this.send(method, params);
 	}
-	private send(method: string, params: Partial<IBaseSendParams>) {
+	private async send(method: string, params: Partial<IBaseSendParams>) {
 		params.chat_id = this.chat.id;
-		return this.api.callMethod<IUpdateCollection>(`send${StringUtils.capitalizeFirst(method)}`, params);
+		let { result: response } = await this.api.callMethod<IUpdate>(`send${StringUtils.capitalizeFirst(method)}`, params);
+		return new Message(response.message);
 	}
 }

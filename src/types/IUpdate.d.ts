@@ -8,9 +8,13 @@ export interface IUpdateFailed {
 }
 export interface IUpdateCollection {
 	ok: boolean;
-	result: IUpdate[]
+	result: IUpdateResult[]
 }
 export interface IUpdate {
+	ok: boolean;
+	result: IUpdateResult;
+}
+export interface IUpdateResult {
 	update_id: number;
 	message?: IMessage;
 	callback_query?: ICallbackQuery;

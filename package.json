@@ -13,6 +13,12 @@
 		"wDebug": "@powershell -Command $env:DEBUG='*';node lib/index.js",
 		"uDebug": "DEBUG=* node lib/index.js"
 	},
+	"homepage": "https://github.com/Ripretention/tg-io#readme",
+	"bugs": "https://github.com/Ripretention/tg-io/issues",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Ripretention/tg-io.git"
+	},
 	"keywords": [
 		"Telegram",
 		"Telegram API",

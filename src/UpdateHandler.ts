@@ -3,7 +3,7 @@ import {CallbackQueryContext} from "./contexts/CallbackQueryContext";
 import {MessageContext} from "./contexts/MessageContext";
 import {ICallbackQuery} from "./types/ICallbackQuery";
 import {IMessage} from "./types/IMessage";
-import {IUpdate} from "./types/IUpdate";
+import {IUpdateResult} from "./types/IUpdate";
 
 type EventContexts = {
 	message: MessageContext,
@@ -18,10 +18,10 @@ export class UpdateHandler {
 		message: MessageContext,
 		callback_query: CallbackQueryContext
 	};
-	private baseHandler: UpdateHandlerFn<IUpdate> = null;
+	private baseHandler: UpdateHandlerFn<IUpdateResult> = null;
 	private updates: { [kind: string]: UpdateHandlerFn<any>[] } = {};
 
-	public async handle(update: IUpdate) {
+	public async handle(update: IUpdateResult) {
 		let middlewareState = HandlerMiddlewareState.Next;
 		let nextMiddlewareFn = () => { 
 			middlewareState = HandlerMiddlewareState.Next; 
@@ -50,7 +50,7 @@ export class UpdateHandler {
 	) {
 		this.contextCtorStorage[event] = ctor;
 	}
-	public use(handler: UpdateHandlerFn<IUpdate>) {
+	public use(handler: UpdateHandlerFn<IUpdateResult>) {
 		this.baseHandler = handler;
 	}
 	public onUpdate<TUpdate>(updateKind: string, handler: UpdateHandlerFn<TUpdate>) {

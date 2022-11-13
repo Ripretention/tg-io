@@ -1,10 +1,10 @@
 import {CallbackQueryContext} from "../src/contexts/CallbackQueryContext";
 import {MessageContext} from "../src/contexts/MessageContext";
 import {CallbackQuery} from "../src/models/CallbackQuery";
-import { IUpdate } from "../src/types/IUpdate";
+import { IUpdateResult } from "../src/types/IUpdate";
 import { UpdateHandler } from "../src/UpdateHandler";
 let handler: UpdateHandler; 
-let baseUpdate: IUpdate = {
+let baseUpdate: IUpdateResult = {
 	update_id: 1,
 	message: {
 		message_id: 1,	
@@ -34,7 +34,7 @@ describe("onUpdate", () => {
 	});
 	test("should correct match with update type", async () => {
 		let handledUpdateCount = 0;
-		let update: IUpdate = {
+		let update: IUpdateResult = {
 			...baseUpdate,
 			someDoppedUpdate: {},
 			newPhoto: null
@@ -53,7 +53,7 @@ describe("onUpdate", () => {
 });
 
 describe("hearCallbackQuery", () => {
-	let update: IUpdate = {
+	let update: IUpdateResult = {
 		update_id: 2,
 		callback_query: {
 			id: "qwe123",
@@ -210,7 +210,7 @@ describe("setContext", () => {
 
 	test("should replace basic callback query context on custom", async () => {
 		let ctx: TestCallbackQuery;
-		let update: IUpdate = {
+		let update: IUpdateResult = {
 			update_id: 2,
 			callback_query: {
 				id: "qwe123",
