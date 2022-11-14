@@ -6,19 +6,37 @@ import {AttachmentSendParams, AttachmentTypes, IBaseSendParams, InputFile} from 
 import {IUpdate} from "../types/IUpdate";
 import {ObjectUtils, StringUtils} from "../Utils";
 import {ICaptionEditParams, ITextEditParams} from "../types/params/IEditParams";
+import {ChatContext} from "./ChatContext";
 
 type SendMessageParams = string | { text: string } & Partial<IBaseSendParams>;
 type SendAttachmentParams<TAttachment extends AttachmentTypes> = AttachmentSendParams<TAttachment> | InputFile | Attachment<any>;
 export class MessageContext extends Message {
 	public match: string[] = [];
+	public chat = new ChatContext(this.api, this.get("chat"));
 	constructor(private readonly api: Api, source: IMessage) {
 		super(source);
 	}
 
-	public editText(text: string = this.text, params?: ITextEditParams | ICaptionEditParams) {
-		if (!this.chat)
-			throw new Error("delete message is supported only in chats");
+	public pin(id = this.id, disableNotification = true) {
+		return this.api.callMethod("pinChatMessage", {
+			chat_id: this.chat.id,
+			message_id: id,
+			disable_notification: disableNotification
+		});
+	}
+	public unpin(id = this.id) {
+		return this.api.callMethod("unpinChatMessage", {
+			chat_id: this.chat.id,
+			message_id: id
+		});
+	}
+	public unpinAll() {
+		return this.api.callMethod("unpinAllChatMessages", {
+			chat_id: this.chat.id
+		});
+	}
 
+	public editText(text: string = this.text, params?: ITextEditParams | ICaptionEditParams) {
 		let isCaptionEdit = (params && params.message_id) || this.hasAttachments;
 		params = {
 			chat_id: this.chat.id,
@@ -37,9 +55,6 @@ export class MessageContext extends Message {
 		params);
 	}
 	public delete(msgId = this.id) {
-		if (!this.chat)
-			throw new Error("delete message is supported only in chats");
-
 		let params = {
 			message_id: msgId,
 			chat_id: this.chat.id
