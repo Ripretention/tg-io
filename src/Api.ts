@@ -17,8 +17,8 @@ export class Api {
 			response = await axios.post(`${this.baseUrl}${this.token}/${method}`, params);
 		} catch (reqError) {
 			if (reqError instanceof AxiosError) {
-				let error = new ApiError(reqError.message);
-				error.code = reqError.response.data.code;
+				let error = new ApiError(reqError?.response?.data ?? reqError.message);
+				error.code = reqError?.response?.data?.code ?? reqError.code;
 				error.method = method;
 				error.params = JSON.stringify(params, null, 2);
 				throw error;

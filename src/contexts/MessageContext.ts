@@ -3,7 +3,7 @@ import {Attachment} from "../models/attachments";
 import {Message} from "../models/Message";
 import {IMessage} from "../types/IMessage";
 import {AttachmentSendParams, AttachmentTypes, IBaseSendParams, InputFile} from "../types/params/ISendParams";
-import {IUpdateResult, IUpdateCollection, IUpdate} from "../types/IUpdate";
+import {IUpdate} from "../types/IUpdate";
 import {ObjectUtils, StringUtils} from "../Utils";
 import {ICaptionEditParams, ITextEditParams} from "../types/params/IEditParams";
 

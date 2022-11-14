@@ -1,6 +1,7 @@
 import {Api} from "../Api";
 import {CallbackQuery} from "../models/CallbackQuery";
 import {ICallbackQuery} from "../types/ICallbackQuery";
+import {ObjectUtils} from "../Utils";
 import {MessageContext} from "./MessageContext";
 
 export class CallbackQueryContext extends CallbackQuery {
@@ -8,5 +9,19 @@ export class CallbackQueryContext extends CallbackQuery {
 	public match: string[] = [];
 	constructor(private readonly api: Api, source: ICallbackQuery) {
 		super(source);
+	}
+
+	public answer(content?: { 
+		text?: string; 
+		alert?: boolean; 
+		url?: string; 
+		cacheTime?: number
+	}) {
+		return this.api.callMethod("answerCallbackQuery", {
+			callback_query_id: this.id,
+			show_alert: content?.url ?? true,
+			cache_time: content?.cacheTime ?? 0,
+			...(ObjectUtils.filterObjectByKey(content ?? {}, k => k !== "cacheTime" && k !== "alert"))
+		});
 	}
 }

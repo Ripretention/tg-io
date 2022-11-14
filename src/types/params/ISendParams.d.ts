@@ -29,4 +29,4 @@ export type AttachmentTypes =
 	"sticker";
 export type AttachmentSendParams<T extends AttachmentTypes> = { 
 	[K in T]: InputFile 
-} & IBaseSendParams;
+} & Partial<IBaseSendParams>;
