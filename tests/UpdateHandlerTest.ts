@@ -59,6 +59,7 @@ describe("hearCallbackQuery", () => {
 			chat_instance: "qwe",
 			from: {
 				id: 1,
+				is_bot: false,
 				frist_name: "Durov"
 			},
 			data: "nodata"
@@ -216,6 +217,7 @@ describe("setContext", () => {
 				chat_instance: "qwe",
 				from: {
 					id: 1,
+					is_bot: false,
 					frist_name: "Durov"
 				},
 				data: "nodata"

@@ -3,11 +3,14 @@
 	"preset": "ts-jest/presets/default-esm",
 	"testEnvironment": "node",
 	"testMatch": ["<rootDir>/tests/**"],
-	"globals": {
-		"ts-jest": {
-			"useESM": true,
-			"isolatedModules": true
-		}
+	"transform": {
+		"\\.(?:ts|d\\.ts)": [
+			"ts-jest",
+			{
+				"useESM": true,
+				"isolatedModules": true
+			}
+		]
 	},
 	"testPathIgnorePatterns": [
       "<rootDir>/tests/utils"

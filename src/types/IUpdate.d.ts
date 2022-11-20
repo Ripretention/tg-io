@@ -1,5 +1,10 @@
+import {IMessage} from "./IMessage";
 import {ICallbackQuery} from "./ICallbackQuery";
-import { IMessage } from "./IMessage";
+
+export interface IApiResult<T> {
+	ok: boolean;
+	result: T;
+}
 
 export interface IUpdateFailed {
 	ok: boolean;
@@ -8,7 +13,7 @@ export interface IUpdateFailed {
 }
 export interface IUpdateCollection {
 	ok: boolean;
-	result: IUpdateResult[]
+	result: IUpdateResult[];
 }
 export interface IUpdate {
 	ok: boolean;

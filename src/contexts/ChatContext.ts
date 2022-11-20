@@ -8,16 +8,16 @@ export class ChatContext extends Chat {
 	}
 
 	public countMembers() {
-		return this.execute("getChatMemberCount");
+		return this.execute<number>("getChatMemberCount");
 	}
 	public leave() {
-		return this.execute("leaveChat");
+		return this.execute<boolean>("leaveChat");
 	}
 
-	private execute(method: string, params?: Record<string, any>) {
-		return this.api.callMethod(method, {
+	private async execute<TResult>(method: string, params?: Record<string, any>) {
+		return (await this.api.callMethod<TResult>(method, {
 			chat_id: this.id,
 			...(params ?? {})
-		});
+		})).result;
 	}
 }
