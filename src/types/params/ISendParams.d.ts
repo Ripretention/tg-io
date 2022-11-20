@@ -3,6 +3,7 @@ import {IMessageEntity} from "../IMessageEntity";
 
 export interface IBaseSendParams {
 	chat_id: number | string;
+	message_thread_id?: number;
 	reply_to_message_id?: number;
 	parse_mode?: string;
 	protect_content?: boolean;
@@ -17,7 +18,7 @@ export interface IMessageSendParams extends IBaseSendParams {
 }
 
 export type InputFile = string | { file_id: string };
-export type AttachmentTypes = 
+export type AttachmentType = 
 	"photo" | 
 	"audio" |
 	"video" |
@@ -27,6 +28,7 @@ export type AttachmentTypes =
 	"video_note" |
 	"media" |
 	"sticker";
-export type AttachmentSendParams<T extends AttachmentTypes> = { 
-	[K in T]: InputFile 
-} & Partial<IBaseSendParams>;
+export interface IAttachmentSendParams extends IBaseSendParams { 
+	caption?: string;
+	caption_entities?: IMessageEntity[];
+}

@@ -2,14 +2,14 @@ import {Api} from "../Api";
 import {Attachment} from "../models/attachments";
 import {Message} from "../models/Message";
 import {IMessage} from "../types/IMessage";
-import {AttachmentSendParams, AttachmentTypes, IBaseSendParams, InputFile} from "../types/params/ISendParams";
+import {AttachmentType, IAttachmentSendParams, IBaseSendParams} from "../types/params/ISendParams";
 import {IUpdateResult} from "../types/IUpdate";
-import {ObjectUtils, StringUtils} from "../Utils";
+import {StringUtils} from "../Utils";
 import {ICaptionEditParams, ITextEditParams} from "../types/params/IEditParams";
 import {ChatContext} from "./ChatContext";
+import {ReadStream} from "fs";
 
 type SendMessageParams = string | { text: string } & Partial<IBaseSendParams>;
-type SendAttachmentParams<TAttachment extends AttachmentTypes> = AttachmentSendParams<TAttachment> | InputFile | Attachment<any>;
 export class MessageContext extends Message {
 	public match: string[] = [];
 	public chat = new ChatContext(this.api, this.get("chat"));
@@ -65,32 +65,26 @@ export class MessageContext extends Message {
 		return this.send("message", params);
 	}
 
-	public attach<TAttachmentType extends AttachmentTypes>(
-		method: TAttachmentType, 
-		params: SendAttachmentParams<TAttachmentType> 
+	public async attach<TAttachmentType extends AttachmentType>(
+		type: TAttachmentType,
+		source: string | Buffer | ReadStream | Attachment<any>,
+		params: Partial<IAttachmentSendParams> = {}
 	) {
-		if (typeof params === "string")
-			params = { 
-				[method]: (/^http/i.test(params) 
-					? params 
-					: { file_id: params }
-				)
-			} as AttachmentSendParams<TAttachmentType>;
-		else if (params instanceof Attachment)
-			params = {
-				[method]: {
-					file_id: params.id
+		let sourceParams = {
+			[type]: typeof source === "string"
+				? source
+				: {
+					file_id: source instanceof Attachment
+						? source.id
+						: source
 				}
-			} as AttachmentSendParams<TAttachmentType>;
-		else if (params.hasOwnProperty("file_id"))
-			params = {
-				[method]: {
-					file_id: params["file_id"],
-				},
-				...(ObjectUtils.filterObjectByKey(params, k => k !== "file_id"))
-			} as AttachmentSendParams<TAttachmentType>;
+		};
 
-		return this.send(method, params as AttachmentSendParams<TAttachmentType>);
+		let response = await this.execute<IUpdateResult>(
+			`send${StringUtils.capitalizeFirst(type)}`, 
+			{ ...params, ...sourceParams }
+		);
+		return new Message(response.message);
 	}
 	private reply(method: string, params: Partial<IBaseSendParams>) {
 		params.reply_to_message_id = this.id;
@@ -98,12 +92,19 @@ export class MessageContext extends Message {
 	}
 	private async send(method: string, params: Partial<IBaseSendParams>) {
 		params.chat_id = this.chat.id;
-		let { result: response } = await this.api.callMethod<IUpdateResult>(`send${StringUtils.capitalizeFirst(method)}`, params);
+		let response = await this.execute<IUpdateResult>(
+			`send${StringUtils.capitalizeFirst(method)}`, 
+			params
+		);
 		return new Message(response.message);
 	}
 
-	private async execute<TResult>(method: string, params: Record<string, any>) {
+	private async execute<TResult>(
+		method: string, 
+		params: Record<string, any>, 
+		apiMethod: "callMethod" | "update" = "callMethod"
+	) {
 		params.chat_id = this.chat.id;
-		return (await this.api.callMethod<TResult>(method, params)).result;
+		return (await this.api[apiMethod]<TResult>(method, params)).result;
 	}
 }

@@ -91,20 +91,6 @@ describe("send attachment (attach())", () => {
 
 		expect(handled).toBe(true);
 	});
-	test("should send attachment by file_id", async () => {
-		let handled = false;
-		hearSendMethod(
-			"Document", 
-			params => params.document.file_id === "id",
-			() => { handled = true; }
-		);
-
-		await msg.attach("document", {
-			file_id: "id"
-		});
-
-		expect(handled).toBe(true);
-	});
 	test("should send attachment by url", async () => {
 		let handled = false;
 		hearSendMethod(
