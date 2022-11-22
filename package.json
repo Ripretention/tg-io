@@ -10,7 +10,6 @@
 		"lint": "eslint . --ext .ts",
 		"lint-fix": "eslint . --ext .ts --fix",
 		"build": "tsc -p tsconfig.build.json",
-		"postinstall": "tsc -p tsconfig.build.json",
 		"wDebug": "@powershell -Command $env:DEBUG='*';node lib/index.js",
 		"uDebug": "DEBUG=* node lib/index.js"
 	},

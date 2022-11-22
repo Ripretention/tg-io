@@ -71,13 +71,9 @@ export class MessageContext extends Message {
 		params: Partial<IAttachmentSendParams> = {}
 	) {
 		let sourceParams = {
-			[type]: typeof source === "string"
+			[type]: typeof source === "string" || !(source instanceof Attachment<any>)
 				? source
-				: {
-					file_id: source instanceof Attachment
-						? source.id
-						: source
-				}
+				: { file_id: source }
 		};
 
 		let response = await this.execute<IUpdateResult>(
