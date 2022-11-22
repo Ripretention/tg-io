@@ -1,7 +1,7 @@
 import axios, {AxiosError, AxiosResponse} from "axios";
 import * as debug from "debug";
 import * as FormData from "form-data";
-import {IApiResult} from "./types/IUpdate";
+import {IApiResult, IUpdateFailed} from "./types/IUpdate";
 
 export class ApiError extends Error {
 	public code: number;
@@ -33,10 +33,14 @@ export class Api {
 			response = await axios.post(`${this.baseUrl}${this.token}/${method}`, params);
 		} catch (reqError) {
 			if (reqError instanceof AxiosError) {
-				let error = new ApiError(reqError?.response?.data ?? reqError.message);
-				error.code = reqError?.response?.data?.code ?? reqError.code;
+				let errorData = reqError?.response?.data as IUpdateFailed;
+				if (errorData == null)
+					throw reqError;
+
+				let error = new ApiError(errorData.description);
+				error.code = errorData.error_code;
 				error.method = method;
-				error.params = JSON.stringify(params, null, 2);
+				error.params = JSON.stringify(params);
 				throw error;
 			}
 
