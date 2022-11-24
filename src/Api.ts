@@ -1,6 +1,7 @@
 import axios, {AxiosError, AxiosResponse} from "axios";
 import * as debug from "debug";
 import * as FormData from "form-data";
+import {ReadStream} from "fs";
 import {IApiResult, IUpdateFailed} from "./types/IUpdate";
 
 export class ApiError extends Error {
@@ -20,8 +21,14 @@ export class Api {
 	public async upload<TResult>(method: string, params: Record<string, any> | FormData) {
 		if (!(params instanceof FormData)) {
 			let formdata = new FormData();
-			for (let [key, value] of Object.entries(params))
-				formdata.append(key, value);
+			for (let [key, value] of Object.entries(params)) {
+				let filename: string = null;
+				if (Buffer.isBuffer(value))
+					filename = "file.data";
+				else if (ReadStream.isReadable(value))
+					filename = (value as ReadStream)?.path?.toString() ?? "file.data";
+				formdata.append(key, value, filename);
+			}
 			params = formdata;
 		}
 
