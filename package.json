@@ -1,6 +1,6 @@
 {
 	"name": "tg-io",
-	"version": "1.4.2",
+	"version": "1.4.3",
 	"description": "Useful and fast library for Telegram Bots",
 	"main": "lib/index.js",
 	"scripts": {
