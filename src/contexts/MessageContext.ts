@@ -8,7 +8,9 @@ import {StringUtils} from "../Utils";
 import {ICaptionEditParams, ITextEditParams} from "../types/params/IEditParams";
 import {ChatContext} from "./ChatContext";
 import {ReadStream} from "fs";
+import {IAttachment, IAudioAttachment, IDocumentAttachment, IPhotoAttachment, IVideoAttachment, IVoiceAttachment} from "../types/IAttachment";
 
+type AttachmentSource<TAttachment extends IAttachment> = string | Buffer | ReadStream | Attachment<TAttachment>;
 type SendMessageParams = string | { text: string } & Partial<IBaseSendParams>;
 export class MessageContext extends Message {
 	public match: string[] = [];
@@ -65,20 +67,35 @@ export class MessageContext extends Message {
 		return this.send("message", params);
 	}
 
+	public sendVoice = this.sendAttachWithCaption<IVoiceAttachment>("voice");
+	public sendVideo = this.sendAttachWithCaption<IVideoAttachment>("video");
+	public sendAudio = this.sendAttachWithCaption<IAudioAttachment>("audio");
+	public sendPhoto = this.sendAttachWithCaption<IPhotoAttachment>("photo");
+	public sendDocument = this.sendAttachWithCaption<IDocumentAttachment>("document");
+	private sendAttachWithCaption<TAttachment extends { caption?: string } & IAttachment>(type: AttachmentType) {
+		return (source: AttachmentSource<TAttachment>, params: Partial<IAttachmentSendParams> | string) => {
+			params = typeof params === "string"
+				? { caption: params }
+				: params;
+
+			return this.attach(type, source, params);
+		};
+	}
 	public async attach<TAttachmentType extends AttachmentType>(
 		type: TAttachmentType,
-		source: string | Buffer | ReadStream | Attachment<any>,
+		source: AttachmentSource<any>,
 		params: Partial<IAttachmentSendParams> = {}
 	) {
 		let sourceParams = {
-			[type]: typeof source === "string" || !(source instanceof Attachment<any>)
-				? source
-				: { file_id: source }
+			[type]: source instanceof Attachment<any>
+				? { file_id: source.id }
+				: source
 		};
 
 		let response = await this.execute<IUpdateResult>(
 			`send${StringUtils.capitalizeFirst(type)}`, 
-			{ ...params, ...sourceParams }
+			{ ...params, ...sourceParams },
+			"upload"
 		);
 		return new Message(response.message);
 	}
@@ -98,7 +115,7 @@ export class MessageContext extends Message {
 	private async execute<TResult>(
 		method: string, 
 		params: Record<string, any>, 
-		apiMethod: "callMethod" | "update" = "callMethod"
+		apiMethod: "callMethod" | "upload" = "callMethod"
 	) {
 		params.chat_id = this.chat.id;
 		return (await this.api[apiMethod]<TResult>(method, params)).result;
