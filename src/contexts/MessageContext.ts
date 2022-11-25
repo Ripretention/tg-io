@@ -67,16 +67,25 @@ export class MessageContext extends Message {
 		return this.send("message", params);
 	}
 
+	public replyVoice = this.sendAttachWithCaption<IVoiceAttachment>("voice", true);
+	public replyVideo = this.sendAttachWithCaption<IVideoAttachment>("video", true);
+	public replyAudio = this.sendAttachWithCaption<IAudioAttachment>("audio", true);
+	public replyPhoto = this.sendAttachWithCaption<IPhotoAttachment>("photo", true);
+	public replyDocument = this.sendAttachWithCaption<IDocumentAttachment>("document", true);
+
 	public sendVoice = this.sendAttachWithCaption<IVoiceAttachment>("voice");
 	public sendVideo = this.sendAttachWithCaption<IVideoAttachment>("video");
 	public sendAudio = this.sendAttachWithCaption<IAudioAttachment>("audio");
 	public sendPhoto = this.sendAttachWithCaption<IPhotoAttachment>("photo");
 	public sendDocument = this.sendAttachWithCaption<IDocumentAttachment>("document");
-	private sendAttachWithCaption<TAttachment extends { caption?: string } & IAttachment>(type: AttachmentType) {
+	private sendAttachWithCaption<TAttachment extends { caption?: string } & IAttachment>(type: AttachmentType, reply  = false) {
 		return (source: AttachmentSource<TAttachment>, params: Partial<IAttachmentSendParams> | string) => {
 			params = typeof params === "string"
 				? { caption: params }
 				: params;
+
+			if (reply)
+				params["reply_to_message_id"] = params?.reply_to_message_id ?? this.id;
 
 			return this.attach(type, source, params);
 		};

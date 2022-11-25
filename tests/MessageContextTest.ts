@@ -117,4 +117,16 @@ describe("attachments", () => {
 
 		expect(caption).toBe(randomCaption);
 	});
+	test("should correctly set reply_to_message_id", async () => {
+		let id = null;
+		hearSendMethod(
+			"Video", 
+			params => params.caption != null, 
+			params => { id = params.reply_to_message_id; }
+		);
+
+		await msg.replyVideo("https://some.com/lol.mp3", "test");
+
+		expect(id).toBe(msg.id);
+	});
 });
