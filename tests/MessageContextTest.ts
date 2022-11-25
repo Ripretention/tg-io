@@ -13,10 +13,10 @@ const msg = new MessageContext(api, {
 	},
 	message_id: Math.random()
 });
-function hearSendMethod(method: string, predicat: (p: any) => boolean, cb: () => any) {
+function hearSendMethod(method: string, predicat: (p: any) => boolean, cb: (p?: any) => any) {
 	apiMock.addCallback(`send${method}`, params => {
 		if (predicat(params))
-			cb();
+			cb(params);
 
 		return Promise.resolve({ 
 			ok: true, 
@@ -35,8 +35,8 @@ beforeEach(() => {
 	apiMock.clear();
 });
 
-describe("send text message", () => {
-	test("should send message by params argument", async () => {
+describe("text messages", () => {
+	test("should send message with a correct chat_id and text fields", async () => {
 		let handled = false;
 		hearSendMethod(
 			"Message", 
@@ -48,7 +48,7 @@ describe("send text message", () => {
 
 		expect(handled).toBe(true);
 	});
-	test("should send message by string argument", async () => {
+	test("should correctly parse a string argument", async () => {
 		let handled = false;
 		hearSendMethod(
 			"Message", 
@@ -60,7 +60,7 @@ describe("send text message", () => {
 
 		expect(handled).toBe(true);
 	});
-	test("should send message with reference (reply) on current message", async () => {
+	test("should correctly set replied message", async () => {
 		let handled = false;
 		hearSendMethod(
 			"Message", 
@@ -73,13 +73,13 @@ describe("send text message", () => {
 		expect(handled).toBe(true);
 	});
 });
-describe("send attachment (attach())", () => {
-	test("should send attachment by attachment class", async () => {
-		let handled = false;
+describe("attachments", () => {
+	test("should parse source from an instance of Attachment (attach)", async () => {
+		let fileId = null;
 		hearSendMethod(
 			"Photo", 
 			params => params.photo.file_id === "123",
-			() => { handled = true; }
+			params => { fileId = params.photo.file_id; }
 		);
 
 		await msg.attach("photo", new Photo({
@@ -89,18 +89,32 @@ describe("send attachment (attach())", () => {
 			width: 600
 		}));
 
-		expect(handled).toBe(true);
+		expect(fileId).toBe("123");
 	});
-	test("should send attachment by url", async () => {
-		let handled = false;
+	test("should parse source from a url (attach)", async () => {
+		let expectedUrl = "https://someaudio.com/audio.mp3";
+		let url = null;
 		hearSendMethod(
 			"Audio", 
 			params => params.chat_id === msg.chat.id && /https/.test(params.audio),
-			() => { handled = true; }
+			params => { url = params.audio; }
 		);
 
-		await msg.attach("audio", "https://someaudio.com/audio.mp3");
+		await msg.attach("audio", expectedUrl);
 
-		expect(handled).toBe(true);
+		expect(url).toBe(expectedUrl);
+	});
+	test("should correctly parse caption from argument (send method)", async () => {
+		let randomCaption = Math.random().toString();
+		let caption = null;
+		hearSendMethod(
+			"Photo", 
+			params => params.caption != null, 
+			params => { caption = params.caption; }
+		);
+
+		await msg.sendPhoto("https://some.com/lol.png", randomCaption);
+
+		expect(caption).toBe(randomCaption);
 	});
 });
