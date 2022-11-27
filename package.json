@@ -3,6 +3,7 @@
 	"version": "1.5.0",
 	"description": "Useful and fast library for Telegram Bots",
 	"main": "lib/index.js",
+	"types": "lib/index.d.ts",
 	"scripts": {
 		"prepare": "npm run build",
 		"watch": "tsc -p tsconfig.build.json --watch",

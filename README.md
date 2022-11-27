@@ -65,7 +65,7 @@ tg.updates.hearCommand(/^\/i wanna some INLINE buttons/i, async ctx => {
 
 ## Expandable basic entities 
 ```typescript
-import {TgContext} from "tg-io";
+import { TgContext } from "tg-io";
 class CustomMessageContext extends TgContext.Message {
   public isAdmin = () => this.sender.id === 1;
   public answer = (text: string) => 
