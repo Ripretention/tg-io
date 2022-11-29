@@ -15,7 +15,6 @@
 		"uDebug": "DEBUG=* node lib/index.js"
 	},
 	"files": [
-		"src/*",
 		"lib/*"
 	],
 	"homepage": "https://github.com/Ripretention/tg-io#readme",
