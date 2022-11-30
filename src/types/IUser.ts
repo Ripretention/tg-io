@@ -1,6 +1,6 @@
 export interface IUser {
 	id: number;
-	frist_name: string;
+	first_name: string;
 	is_bot: boolean;
 	language_code?: string;
 	last_name?: string;
