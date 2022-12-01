@@ -36,7 +36,7 @@ describe("onUpdate", () => {
 		let update: IUpdateResult = {
 			...baseUpdate,
 			someDoppedUpdate: {},
-			newPhoto: null
+			newPhoto: {}
 		};
 		let testHandler = (_: any, next: () => void) => {
 			handledUpdateCount++;
@@ -45,6 +45,7 @@ describe("onUpdate", () => {
 		handler.onUpdate("message", testHandler);
 		handler.onUpdate("newPhoto", testHandler);
 
+		console.log(handler);
 		await handler.handle(update);
 
 		expect(handledUpdateCount).toBe(2);
@@ -60,7 +61,7 @@ describe("hearCallbackQuery", () => {
 			from: {
 				id: 1,
 				is_bot: false,
-				frist_name: "Durov"
+				first_name: "Durov"
 			},
 			data: "nodata"
 		}
@@ -173,17 +174,16 @@ describe("onMessageEvent", () => {
 		}
 	};
 
-	test("should be called 3 times", async () => {
+	test("should be called", async () => {
 		let handledEvents = 0;
-		for (let i = 1; i <= 3; i++)
-			handler.onMessageEvent(`event${i}`, (_, next) => {
-				handledEvents++;
-				next();
-			});
+		handler.onMessageEvent("text", (_, next) => {
+			handledEvents++;
+			next();
+		});
 
 		await handler.handle(update);
 
-		expect(handledEvents).toBe(3);
+		expect(handledEvents).toBe(1);
 	});
 });
 
@@ -218,7 +218,7 @@ describe("setContext", () => {
 				from: {
 					id: 1,
 					is_bot: false,
-					frist_name: "Durov"
+					first_name: "Durov"
 				},
 				data: "nodata"
 			}

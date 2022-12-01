@@ -1,7 +1,7 @@
 import {Api} from "./Api";
 import {CallbackQueryContext} from "./contexts/CallbackQueryContext";
 import {MessageContext} from "./contexts/MessageContext";
-import {ICallbackQuery} from "./types/ICallbackQuery";
+import {Middleware, MiddlewareToken} from "./Middleware";
 import {IMessage} from "./types/IMessage";
 import {IUpdateResult} from "./types/IUpdate";
 
@@ -18,29 +18,19 @@ export class UpdateHandler {
 		message: MessageContext,
 		callback_query: CallbackQueryContext
 	};
-	private baseHandler: UpdateHandlerFn<IUpdateResult> = null;
-	private updates: { [kind: string]: UpdateHandlerFn<any>[] } = {};
+	private middlewareToken = new MiddlewareToken();
+	private baseHandler = new Middleware<IUpdateResult>(this.middlewareToken);
+	private updates: { [kind: string]: Middleware<any> } = {};
 
 	public async handle(update: IUpdateResult) {
-		let middlewareState = HandlerMiddlewareState.Next;
-		let nextMiddlewareFn = () => { 
-			middlewareState = HandlerMiddlewareState.Next; 
-		};
+		this.middlewareToken.reset();
 
-		await this?.baseHandler?.(update, nextMiddlewareFn);
-		if (middlewareState !== HandlerMiddlewareState.Next)
-			return;
-
-		for (let updateHandler of Object.entries(this.updates)
-			.filter(([key]) => Object.keys(update).includes(key))
-			.flatMap(([_, body]) => body)
+		await this.baseHandler.handle(update);
+		for (let updateMiddleware of Object.keys(this.updates)
+			.filter(key => Object.keys(update).includes(key))
+			.map(key => this.updates[key])
 		) {
-			if (middlewareState === HandlerMiddlewareState.Next) {
-				middlewareState = HandlerMiddlewareState.Stop;
-				await updateHandler(update, nextMiddlewareFn);
-				continue;
-			}
-			break;
+			await updateMiddleware.handle(update);
 		}
 	}
 
@@ -51,27 +41,46 @@ export class UpdateHandler {
 		this.contextCtorStorage[event] = ctor;
 	}
 	public use(handler: UpdateHandlerFn<IUpdateResult>) {
-		this.baseHandler = handler;
+		this.baseHandler.add(handler);
 	}
-	public onUpdate<TUpdate>(updateKind: string, handler: UpdateHandlerFn<TUpdate>) {
+	public onUpdate<TUpdate>(
+		updateKind: string, 
+		handler: UpdateHandlerFn<TUpdate>,
+		skipConvertingToContext = false
+	) {
 		if (!this.updates.hasOwnProperty(updateKind))
-			this.updates[updateKind] = [];
-		this.updates[updateKind].push((upd, next) => handler(upd[updateKind], next));
+			this.updates[updateKind] = new Middleware(this.middlewareToken); 
+
+		this.updates[updateKind].add((upd, next) => {
+			if (!upd.hasOwnProperty(updateKind))
+				return next();
+
+			let evt = skipConvertingToContext || !this.contextCtorStorage.hasOwnProperty(updateKind)
+				? upd[updateKind]
+				: new this.contextCtorStorage[updateKind](this.api, upd[updateKind]);
+
+			return handler(evt, next);
+		});
 	}
 	public hearCallbackQuery<TContext extends CallbackQueryContext>(match: TextMatch, handler: UpdateHandlerFn<TContext>) {
-		this.onUpdate<ICallbackQuery>("callback_query", this.hearEvent(match, handler, this.contextCtorStorage.callback_query, "data"));
+		this.onUpdate<TContext>(
+			"callback_query", 
+			this.hearEvent<TContext>(match, handler, "data")
+		);
 	}
 	public hearCommand<TContext extends MessageContext>(match: TextMatch, handler: UpdateHandlerFn<TContext>) {
-		this.onUpdate<IMessage>("message", this.hearEvent(match, handler, this.contextCtorStorage.message, "text"));
+		this.onUpdate<TContext>(
+			"message", 
+			this.hearEvent<TContext>(match, handler, "text")
+		);
 	}
-	private hearEvent<TEvent, TContext extends { match: string[] }>(
+	private hearEvent<TContext extends { match: string[] }>(
 		match: TextMatch, 
 		handler: UpdateHandlerFn<TContext>, 
-		ctor: new (api: Api, source: TEvent) => TContext, 
-		matchSouce: keyof TEvent
+		matchSouce: keyof TContext
 	) {
-		return (upd: TEvent, next: () => void) => {
-			let content = upd?.[matchSouce] as string;
+		return (ctx: TContext, next: () => void) => {
+			let content = ctx?.[matchSouce] as string;
 
 			let isMatched = (
 				(typeof match === "string" && content === match) ||
@@ -79,25 +88,19 @@ export class UpdateHandler {
 				(match instanceof RegExp && match.test(content))
 			);
 			if (isMatched) {
-				let evt = new ctor(this.api, upd);
-				evt.match = match instanceof RegExp 
+				ctx.match = match instanceof RegExp 
 					? content.match(match) 
 					: [];
-				return handler(evt, next);
+				return handler(ctx, next);
 			}
 
 			return next();
 		};
 	}
-	public onMessageEvent(event: string, handler: UpdateHandlerFn<MessageContext>) {
-		this.onUpdate<IMessage>("message", (upd, next) => upd.hasOwnProperty(event)
-			? handler(new this.contextCtorStorage.message(this.api, upd), next)
+	public onMessageEvent<TContext extends MessageContext>(event: keyof TContext | keyof IMessage, handler: UpdateHandlerFn<TContext>) {
+		this.onUpdate<TContext>("message", (upd, next) => event.hasOwnProperty(event) || upd.get(event as any)
+			? handler(upd, next)
 			: next()
 		);
 	}
-}
-
-enum HandlerMiddlewareState {
-	Next,
-	Stop	
 }
