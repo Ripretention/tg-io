@@ -188,12 +188,29 @@ describe("onMessageEvent", () => {
 });
 
 describe("setContext", () => {
+	test("should pass a custom context to next handler", async () => {
+		let update = baseUpdate;
+		let payload: string;
+		handler.setContext("message", TestMessage);
+		handler.onUpdate("message", (ctx: TestMessage, next) => {
+			ctx.specialTestPayload = "secret payload";
+			next();
+		});
+		handler.hearCommand(/^\/test/, (ctx: TestMessage) => {
+			payload = ctx.specialTestPayload;
+		});
+
+		await handler.handle(update);
+
+		expect(payload).toBe("secret payload");
+	});
 	test("should replace basic message context on custom", async () => {
 		let update = baseUpdate;
 		let testMessagePayload: string;
 		handler.setContext("message", TestMessage);
-		handler.hearCommand(/^\/test/, (ctx: TestMessage) => {
+		handler.hearCommand(/^\/test/, (ctx: TestMessage, next) => {
 			testMessagePayload = ctx.toString();
+			next();
 		});
 
 		await handler.handle(update);

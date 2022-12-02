@@ -48,19 +48,21 @@ export class UpdateHandler {
 		handler: UpdateHandlerFn<TUpdate>,
 		skipConvertingToContext = false
 	) {
-		if (!this.updates.hasOwnProperty(updateKind))
+		if (!this.updates.hasOwnProperty(updateKind)) {
 			this.updates[updateKind] = new Middleware(this.middlewareToken); 
+			this.updates[updateKind].add((upd, next) => {
+				if (!upd.hasOwnProperty(updateKind))
+					return next();
 
-		this.updates[updateKind].add((upd, next) => {
-			if (!upd.hasOwnProperty(updateKind))
-				return next();
+				let evt = skipConvertingToContext || !this.contextCtorStorage.hasOwnProperty(updateKind)
+					? upd[updateKind]
+					: new this.contextCtorStorage[updateKind](this.api, upd[updateKind]);
 
-			let evt = skipConvertingToContext || !this.contextCtorStorage.hasOwnProperty(updateKind)
-				? upd[updateKind]
-				: new this.contextCtorStorage[updateKind](this.api, upd[updateKind]);
+				next(evt);
+			});
+		}
 
-			return handler(evt, next);
-		});
+		this.updates[updateKind].add(handler);
 	}
 	public hearCallbackQuery<TContext extends CallbackQueryContext>(match: TextMatch, handler: UpdateHandlerFn<TContext>) {
 		this.onUpdate<TContext>(
