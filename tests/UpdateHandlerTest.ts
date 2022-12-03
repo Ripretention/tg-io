@@ -45,7 +45,6 @@ describe("onUpdate", () => {
 		handler.onUpdate("message", testHandler);
 		handler.onUpdate("newPhoto", testHandler);
 
-		console.log(handler);
 		await handler.handle(update);
 
 		expect(handledUpdateCount).toBe(2);

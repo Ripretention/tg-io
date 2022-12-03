@@ -77,3 +77,24 @@ describe("complex structure of message entities", () => {
 		});
 	});
 });
+describe("concatenations", () => {
+	test("should correctly connect two message entities", () => {
+		let firstEntity = MessageBuilder.build(f => `i am ${f.bold("first")}!\n`);
+		let secondEntity = MessageBuilder.build(f => `i am ${f.italic("second")}!`);
+
+		let result = MessageBuilder.concat(firstEntity, secondEntity);
+
+		expect(result).toStrictEqual({
+			text: "i am first!\ni am second!",
+			entities: [{
+				type: "bold",
+				length: 5,
+				offset: 5
+			}, {
+				type: "italic",
+				length: 6,
+				offset: 17 
+			}]
+		});
+	});
+});

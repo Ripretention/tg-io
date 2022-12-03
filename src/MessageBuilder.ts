@@ -3,8 +3,9 @@ import {IMessageSendParams} from "./types/params/ISendParams";
 import {IUser} from "./types/IUser";
 import {ObjectUtils} from "./Utils";
 
+type FormattedMessage = Pick<IMessageSendParams, "entities" | "text">;
 export class MessageBuilder {
-	public static build(builderFn: (builder: MessageBuilderComponent) => string): Pick<IMessageSendParams, "entities" | "text"> {
+	public static build(builderFn: (builder: MessageBuilderComponent) => string): FormattedMessage {
 		let entities: IMessageEntity[] = [];
 		let component = new MessageBuilderComponent();
 		let text = builderFn(component);
@@ -29,6 +30,19 @@ export class MessageBuilder {
 			text,
 			entities
 		};
+	}
+	public static concat(...formattedMessages: FormattedMessage[]) {
+		return formattedMessages.reduce((acc, msg) => {
+			msg.entities = msg?.entities?.map(e => {
+				e.offset += acc.text.length;
+				return e;
+			}) ?? [];
+
+			msg.entities = (acc?.entities ?? []).concat(msg.entities);
+			msg.text = acc.text + msg.text;
+
+			return msg;
+		}, { text: "" } as FormattedMessage);
 	}
 }
 class MessageBuilderComponent {
