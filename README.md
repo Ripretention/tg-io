@@ -77,3 +77,39 @@ tg.updates.hearCommand<CustomMessageContext>("/durovtest", ctx =>
   ctx.answer("u are... " + ctx.isAdmin ? "durov!" : "nobody..")
 );
 ```
+
+## New elegant way to handle your commands
+```typescript
+import {
+  TgContext, 
+  TgCommand, 
+  TgEvent, 
+  TgEntity, 
+  TgUse 
+} from "tg-io";
+
+class UpdateHandler {
+  public botname: string;
+
+  @TgUse()
+  public log(upd: TgEntity.IUpdateResult, next: () => void) {
+    console.log(`received upd #${upd.update_id}`);
+    next();
+  }
+
+  @TgEvent("photo")
+  public async thankForPic(ctx: TgContext.Message, next: () => void) {
+    await ctx.replyMessage("thx for a pic!");
+    next();
+  }
+
+  @TgCommand(/info$/i)
+  public sendInfo(ctx: TgContext.Message) {
+    return ctx.sendMessage(`hello, i'm ${this.botname}`);
+  }
+}
+
+let updHandler = new UpdateHandler();
+updHandler.botname = "sample bot";
+tg.updates.implementDecorators(updHandler);
+```

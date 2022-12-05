@@ -26,8 +26,15 @@ export {
 	MessageBuilder as TgMessageBuilder,
 	Keyboard as TgKeyboard,
 };
+export {
+	Use as TgUse,
+	Event as TgEvent,
+	Update as TgUpdate,
+	Command as TgCommand,
+	CallbackQuery as TgCallbackQuery
+} from "./src/UpdateHandlerDecorators";
 export * as TgEntity from "./src/types";
 export * as TgModel from "./src/models";
 export * as TgContext from "./src/contexts";
-export * as TgParams from "./src/types/params";
+export * as TgParam from "./src/types/params";
 export * as TgAttachment from "./src/models/attachments";
