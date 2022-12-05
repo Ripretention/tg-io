@@ -166,16 +166,13 @@ describe("onMessageEvent", () => {
 			message_id: 2,
 			date: null,
 			text: "/some command",
-			event1: {},
-			event2: {},
-			event3: {},
-			unhandledEvent: {}
+			photo: []
 		}
 	};
 
 	test("should be called", async () => {
 		let handledEvents = 0;
-		handler.onMessageEvent("text", (_, next) => {
+		handler.onMessageEvent("photo", (_, next) => {
 			handledEvents++;
 			next();
 		});

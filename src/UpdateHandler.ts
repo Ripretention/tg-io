@@ -4,12 +4,13 @@ import {MessageContext} from "./contexts/MessageContext";
 import {Middleware, MiddlewareToken} from "./Middleware";
 import {IMessage} from "./types/IMessage";
 import {IUpdateResult} from "./types/IUpdate";
+import {DecoratorMetadata} from "./UpdateHandlerDecorators";
 
 type EventContexts = {
 	message: MessageContext,
 	callback_query: CallbackQueryContext
 };
-type TextMatch = string | string[] | RegExp;
+export type TextMatch = string | string[] | RegExp;
 export type UpdateHandlerFn<TUpdate> = (context: TUpdate, next: () => void) => any;
 export class UpdateHandler {
 	constructor(private readonly api: Api) {}
@@ -31,6 +32,16 @@ export class UpdateHandler {
 			.map(key => this.updates[key])
 		) {
 			await updateMiddleware.handle(update);
+		}
+	}
+
+	public implementDecorators(...decoratedHandlers: Record<string, any>[]) {
+		for (let handler of decoratedHandlers) {
+			let metadata: DecoratorMetadata = handler?.constructor?.prototype?.__tgHandlerMetadata;
+			if (!metadata)
+				continue;
+
+			metadata.implement(this, handler);
 		}
 	}
 
