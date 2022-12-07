@@ -8,10 +8,21 @@ export class User extends Entity<IUser> {
 	public readonly username = this.get("username");
 	public readonly code = this.get("language_code");
 
+	public get appeal() {
+		let username = this.username;
+		if (username)
+			username = "@" + username;
+
+		return username ?? this.fullname;
+	}
 	public get isBot() {
 		return this.get("is_bot") == true;
 	}
 	public get fullname() {
-		return this.firstname + (this.lastname ?? "");
+		let fullname = this.firstname;
+		if (this.lastname)
+			fullname += ` ${this.lastname}`;
+
+		return fullname;
 	}
 }
