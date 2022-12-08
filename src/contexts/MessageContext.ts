@@ -1,14 +1,25 @@
 import {Api} from "../Api";
-import {Attachment} from "../models/attachments";
-import {Message} from "../models/Message";
-import {IMessage} from "../types/IMessage";
-import {AttachmentType, IAttachmentSendParams, IBaseSendParams} from "../types/params/ISendParams";
-import {IUpdateResult} from "../types/IUpdate";
-import {StringUtils} from "../Utils";
-import {ICaptionEditParams, ITextEditParams} from "../types/params/IEditParams";
-import {ChatContext} from "./ChatContext";
 import {ReadStream} from "fs";
-import {IAttachment, IAudioAttachment, IDocumentAttachment, IPhotoAttachment, IVideoAttachment, IVoiceAttachment} from "../types/IAttachment";
+import {StringUtils} from "../Utils";
+import {Message} from "../models/Message";
+import {ChatContext} from "./ChatContext";
+import {IMessage} from "../types/IMessage";
+import {IUpdateResult} from "../types/IUpdate";
+import {Attachment} from "../models/attachments";
+import {ICaptionEditParams, ITextEditParams} from "../types/params/IEditParams";
+import {
+	AttachmentType,
+	IAttachmentSendParams,
+	IBaseSendParams
+} from "../types/params/ISendParams";
+import {
+	IAttachment,
+	IAudioAttachment,
+	IDocumentAttachment,
+	IPhotoAttachment,
+	IVideoAttachment,
+	IVoiceAttachment
+} from "../types/IAttachment";
 
 type AttachmentSource<TAttachment extends IAttachment> = string | Buffer | ReadStream | Attachment<TAttachment>;
 type SendMessageParams = string | { text: string } & Partial<IBaseSendParams>;
@@ -67,17 +78,17 @@ export class MessageContext extends Message {
 		return this.send("message", params);
 	}
 
-	public replyVoice = this.sendAttachWithCaption<IVoiceAttachment>("voice", true);
-	public replyVideo = this.sendAttachWithCaption<IVideoAttachment>("video", true);
-	public replyAudio = this.sendAttachWithCaption<IAudioAttachment>("audio", true);
-	public replyPhoto = this.sendAttachWithCaption<IPhotoAttachment>("photo", true);
-	public replyDocument = this.sendAttachWithCaption<IDocumentAttachment>("document", true);
+	public readonly replyVoice = this.sendAttachWithCaption<IVoiceAttachment>("voice", true);
+	public readonly replyVideo = this.sendAttachWithCaption<IVideoAttachment>("video", true);
+	public readonly replyAudio = this.sendAttachWithCaption<IAudioAttachment>("audio", true);
+	public readonly replyPhoto = this.sendAttachWithCaption<IPhotoAttachment>("photo", true);
+	public readonly replyDocument = this.sendAttachWithCaption<IDocumentAttachment>("document", true);
 
-	public sendVoice = this.sendAttachWithCaption<IVoiceAttachment>("voice");
-	public sendVideo = this.sendAttachWithCaption<IVideoAttachment>("video");
-	public sendAudio = this.sendAttachWithCaption<IAudioAttachment>("audio");
-	public sendPhoto = this.sendAttachWithCaption<IPhotoAttachment>("photo");
-	public sendDocument = this.sendAttachWithCaption<IDocumentAttachment>("document");
+	public readonly sendVoice = this.sendAttachWithCaption<IVoiceAttachment>("voice");
+	public readonly sendVideo = this.sendAttachWithCaption<IVideoAttachment>("video");
+	public readonly sendAudio = this.sendAttachWithCaption<IAudioAttachment>("audio");
+	public readonly sendPhoto = this.sendAttachWithCaption<IPhotoAttachment>("photo");
+	public readonly sendDocument = this.sendAttachWithCaption<IDocumentAttachment>("document");
 	private sendAttachWithCaption<TAttachment extends { caption?: string } & IAttachment>(type: AttachmentType, reply  = false) {
 		return (source: AttachmentSource<TAttachment>, params: Partial<IAttachmentSendParams> | string) => {
 			params = typeof params === "string"

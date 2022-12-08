@@ -1,4 +1,4 @@
-import {IAudioAttachment, IDocumentAttachment, IPhotoAttachment, IVideoAttachment, IVideoNoteAttachment, IVoiceAttachment} from "./IAttachment";
+import {IAudioAttachment, IDocumentAttachment, IPhotoAttachment, IStickerAttachment, IVideoAttachment, IVideoNoteAttachment, IVoiceAttachment} from "./IAttachment";
 import {IChat} from "./IChat";
 import {IMessageEntity} from "./IMessageEntity";
 import {IUser} from "./IUser";
@@ -15,6 +15,7 @@ export interface IMessage {
 	caption_entities?: string;
 
 	// attachments
+	sticker?: IStickerAttachment;
 	audio?: IAudioAttachment;
 	document?: IDocumentAttachment;
 	video?: IVideoAttachment;

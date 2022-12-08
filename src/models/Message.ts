@@ -1,5 +1,6 @@
 import {IMessage} from "../types/IMessage";
 import {Audio, Document, Photo, Video, VideoNote, Voice} from "./attachments";
+import {Sticker} from "./attachments/Sticker";
 import {Chat} from "./Chat";
 import {Entity} from "./Entity";
 import {User} from "./User";
@@ -17,8 +18,9 @@ export class Message extends Entity<IMessage> {
 	public audio = this.construct("audio", Audio);
 	public voice = this.construct("voice", Voice);
 	public video = this.construct("video", Video);
-	public videoNote = this.construct("video_note", VideoNote);
+	public sticker = this.construct("sticker", Sticker);
 	public document = this.construct("document", Document);
+	public videoNote = this.construct("video_note", VideoNote);
 	public photo = this.get("photo")
 		? this.get("photo").map(photo => new Photo(photo))
 		: []; 
