@@ -8,4 +8,21 @@ export class ObjectUtils {
 			.filter(predicate)
 			.reduce((res, key) => (res[key] = object[key], res), {} as Record<TKey, any>) as TObject;
 	}
+	public static groupBy<TObject, TKey extends keyof TObject>(arr: TObject[], key: TKey) {
+		let grouped: {
+			key: TObject[TKey],
+			values: TObject[]
+		}[] = [];
+
+		for (let elem of arr) {
+			let index = grouped.findIndex(g => g.key === elem[key]);
+			if (index == -1) {
+				index = grouped.length;
+				grouped.push({ key: elem[key], values: [] });
+			}
+			grouped[index].values.push(elem);
+		}
+
+		return grouped;
+	}
 }
