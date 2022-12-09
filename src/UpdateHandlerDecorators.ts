@@ -3,7 +3,7 @@ import {IMessage} from "./types";
 import {TextMatch, UpdateHandler} from "./UpdateHandler";
 
 type UpdateHandlerMethod = keyof InstanceType<typeof UpdateHandler>;
-export class DecoratorMetadata {
+export class UpdateHandlerDecoratorMetadata {
 	private storage: Record<string, any[]> = {};
 	public add(method: UpdateHandlerMethod, ...args: any[]) {
 		if (!this.storage.hasOwnProperty(method))
@@ -20,9 +20,9 @@ export class DecoratorMetadata {
 	}
 }
 
-function injectMetadata(obj: Record<string, any>): DecoratorMetadata {
+function injectMetadata(obj: Record<string, any>): UpdateHandlerDecoratorMetadata {
 	if (!obj.constructor.prototype.__tgHandlerMetadata)
-		obj.constructor.prototype.__tgHandlerMetadata = new DecoratorMetadata;
+		obj.constructor.prototype.__tgHandlerMetadata = new UpdateHandlerDecoratorMetadata;
 
 	return obj.constructor.prototype.__tgHandlerMetadata;
 }

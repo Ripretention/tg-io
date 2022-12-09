@@ -1,5 +1,6 @@
 import {IBotCommand, IBotCommandScope} from "../types/IBotCommand";
 import {ObjectUtils} from "../Utils";
+import {CommandInfoDecoratorMetadata} from "./BotCommandDecorators";
 
 export class BotCommandList {
 	private commands: (IBotCommand & { 
@@ -30,6 +31,23 @@ export class BotCommandList {
 				}))
 			}))
 		}));
+	}
+	public getLang() {
+		return this.currentLang;
+	}
+	public getScope() {
+		return this.currentScope;
+	}
+
+	public implementDecorators(...decoratedHandlers: Record<string, any>[]) {
+		for (let handler of decoratedHandlers) {
+			let metadata: CommandInfoDecoratorMetadata = handler?.constructor?.prototype?.__tgCommandInfo;
+			if (!metadata)
+				continue;
+
+			metadata.implement(this);
+		}
+		return this;
 	}
 
 	public setScope(type: IBotCommandScope["type"], params?: Omit<IBotCommandScope, "type">) {

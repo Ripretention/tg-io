@@ -4,7 +4,7 @@ import {MessageContext} from "./contexts/MessageContext";
 import {Middleware, MiddlewareToken} from "./Middleware";
 import {IMessage} from "./types/IMessage";
 import {IUpdateResult} from "./types/IUpdate";
-import {DecoratorMetadata} from "./UpdateHandlerDecorators";
+import {UpdateHandlerDecoratorMetadata} from "./UpdateHandlerDecorators";
 
 type EventContexts = {
 	message: MessageContext,
@@ -37,7 +37,7 @@ export class UpdateHandler {
 
 	public implementDecorators(...decoratedHandlers: Record<string, any>[]) {
 		for (let handler of decoratedHandlers) {
-			let metadata: DecoratorMetadata = handler?.constructor?.prototype?.__tgHandlerMetadata;
+			let metadata: UpdateHandlerDecoratorMetadata = handler?.constructor?.prototype?.__tgHandlerMetadata;
 			if (!metadata)
 				continue;
 

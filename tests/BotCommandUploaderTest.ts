@@ -1,3 +1,4 @@
+import {CommandInfo} from "../src/commands/BotCommandDecorators";
 import {BotCommandList} from "../src/commands/BotCommandList";
 import {BotCommandUploader} from "../src/commands/BotCommandUploader";
 import {IBotCommand} from "../src/types/IBotCommand";
@@ -72,5 +73,28 @@ test("should correctly set multilanguage command list", async () => {
 		scope: [{ type: "chat" }]
 	}
 	]);
+});
+class CommandHandler {
+	@CommandInfo("/ping", "get a ping")
+	public getPing() {
+		return Promise.resolve(0);
+	}
+}
+test("should correctly work with decorated entities", async () => {
+	let result: Record<string, any>;
+	let list = new BotCommandList().implementDecorators(new CommandHandler);
+	hearGetCommands([]);
+	hearSetCommands(p => { result = p; });
+	
+	await cmdUploader.upload(list);
+
+	expect(result).toStrictEqual({
+		commands: [{
+			command: "/ping",
+			description: "get a ping"
+		}],
+		language_code: null,
+		scope: [{ type: "default" }]
+	});
 });
 
