@@ -113,3 +113,31 @@ let updHandler = new UpdateHandler();
 updHandler.botname = "sample bot";
 tg.updates.implementDecorators(updHandler);
 ```
+
+## Describe your commands comfortably
+```typescript
+import {
+  TgCommand, 
+  TgCommandInfo, 
+  TgContext
+} from "tg-io";
+
+tg.commands
+  .add("/sample", "a sample command")
+  .setScope("chat_administrators")
+  .add("/adm", "a secret command for admins")
+  .resetScope()
+  .setLanguage("in")
+  .add("/india", "खैर, आपने अनुवाद क्यों किया?")
+  .resetLanguage();
+
+class AdminCommandsHandler {
+  @TgCommandInfo("/ping", "get a ping")
+  @TgCommand(/^\/ping$/)
+  public sendPing(ctx: TgContext.Message) {
+    // some code here..
+  }
+}
+tg.commands.implementDecorators(new AdminCommandsHandler());
+tg.uploadCommands();
+```
