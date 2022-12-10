@@ -123,16 +123,16 @@ import {
 } from "tg-io";
 
 tg.commands
-  .add("/sample", "a sample command")
+  .add("sample", "a sample command")
   .setScope("chat_administrators")
-  .add("/adm", "a secret command for admins")
+  .add("adm", "a secret command for admins")
   .resetScope()
   .setLanguage("in")
-  .add("/india", "खैर, आपने अनुवाद क्यों किया?")
+  .add("india", "खैर, आपने अनुवाद क्यों किया?")
   .resetLanguage();
 
 class AdminCommandsHandler {
-  @TgCommandInfo("/ping", "get a ping")
+  @TgCommandInfo("ping", "get a ping")
   @TgCommand(/^\/ping$/)
   public sendPing(ctx: TgContext.Message) {
     // some code here..

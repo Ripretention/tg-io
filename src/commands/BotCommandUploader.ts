@@ -20,7 +20,7 @@ export class BotCommandUploader {
 				await this.api.callMethod("setMyCommands", {
 					commands,
 					scope,
-					language_code: language
+					language_code: language ?? ""
 				});
 			}
 		}
@@ -32,12 +32,12 @@ export class BotCommandUploader {
 	) {
 		let { result } = await this.api.callMethod<IBotCommand[]>("getMyCommands", {
 			scope,
-			language_code: lang
+			language_code: lang ?? ""
 		});
 
-		return result.length > 0 && result.every(resCmd => 
-			commands.some(cmd => 
-				cmd.command === resCmd.command && cmd.description === resCmd.description
+		return result.length > 0 && commands.every(cmd => 
+			result.some(resCmd => 
+				resCmd.command === cmd.command && resCmd.description === cmd.description
 			)
 		);
 	}

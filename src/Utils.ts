@@ -15,7 +15,7 @@ export class ObjectUtils {
 		}[] = [];
 
 		for (let elem of arr) {
-			let index = grouped.findIndex(g => g.key === elem[key]);
+			let index = grouped.findIndex(g => JSON.stringify(g.key) === JSON.stringify(elem[key]));
 			if (index == -1) {
 				index = grouped.length;
 				grouped.push({ key: elem[key], values: [] });

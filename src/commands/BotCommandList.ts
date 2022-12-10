@@ -7,7 +7,7 @@ export class BotCommandList {
 		lang?: string; 
 		scope?: IBotCommandScope; 
 	})[] = [];
-	private currentLang: string = null;
+	private currentLang = "";
 	private currentScope: IBotCommandScope = { type: "default" };
 	public add(command: string, description: string) {
 		this.commands.push({ 
