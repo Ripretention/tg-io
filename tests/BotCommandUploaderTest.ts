@@ -42,7 +42,7 @@ test("should correctly set command list", async () => {
 			description: "a test command"
 		}],
 		language_code: null,
-		scope: [{ type: "default" }]
+		scope: { type: "default" }
 	});
 });
 test("should correctly set multilanguage command list", async () => {
@@ -63,14 +63,14 @@ test("should correctly set multilanguage command list", async () => {
 			description: "a test command"
 		}],
 		language_code: null,
-		scope: [{ type: "default" }]
+		scope: { type: "default" }
 	}, {
 		commands: [{
 			command: "/test_en",
 			description: "a test command2"
 		}],
 		language_code: "en",
-		scope: [{ type: "chat" }]
+		scope: { type: "chat" }
 	}
 	]);
 });
@@ -94,7 +94,7 @@ test("should correctly work with decorated entities", async () => {
 			description: "get a ping"
 		}],
 		language_code: null,
-		scope: [{ type: "default" }]
+		scope: { type: "default" }
 	});
 });
 
