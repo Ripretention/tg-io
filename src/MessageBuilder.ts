@@ -138,7 +138,7 @@ class MessageBuilderComponent {
 	public textMention(content: string, user: IUser) {
 		return this.add(content, {
 			type: "text_mention",
-			user	
+			user: `tg://user?id=${user.id}`
 		});
 	}
 	public emoji(content: string, emoji: string) {

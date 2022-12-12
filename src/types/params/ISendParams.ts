@@ -14,6 +14,7 @@ export interface IBaseSendParams {
 
 export interface IMessageSendParams extends IBaseSendParams {
 	text: string;
+	disable_web_page_preview?: boolean;
 	entities?: IMessageEntity[];
 }
 
