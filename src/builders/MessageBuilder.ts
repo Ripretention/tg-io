@@ -1,7 +1,7 @@
-import {IMessageEntity, MessageEntityType} from "./types/IMessageEntity";
-import {IMessageSendParams} from "./types/params/ISendParams";
-import {IUser} from "./types/IUser";
-import {ObjectUtils} from "./Utils";
+import {IMessageEntity, MessageEntityType} from "../types/IMessageEntity";
+import {IMessageSendParams} from "../types/params/ISendParams";
+import {IUser} from "../types/IUser";
+import {ObjectUtils} from "../Utils";
 
 type FormattedMessage = Pick<IMessageSendParams, "entities" | "text">;
 export class MessageBuilder {

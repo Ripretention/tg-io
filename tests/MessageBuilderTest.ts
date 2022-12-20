@@ -1,7 +1,7 @@
-import {MessageBuilder} from "../src/MessageBuilder";
+import {MessageBuilder} from "../src/builders/";
 
-describe("basic message entities", () => {
-	test("should return params with bold entity", () => {
+describe("basic message building", () => {
+	test("should build message with bold elements", () => {
 		let text = "test text"; 
 		let params = MessageBuilder.build(f => f.bold(text));
 
@@ -14,7 +14,7 @@ describe("basic message entities", () => {
 			}]
 		});
 	});
-	test("should return params with italic entity", () => {
+	test("should build message with italic elements", () => {
 		let text = "text is test"; 
 		let params = MessageBuilder.build(f => f.italic(text));
 
@@ -27,7 +27,7 @@ describe("basic message entities", () => {
 			}]
 		});
 	});
-	test("should return pre entity", () => {
+	test("should build message with a pre element", () => {
 		let text = "fn x = x + 1";
 		let params = MessageBuilder.build(f => f.pre(text, "haskell"));
 
@@ -42,8 +42,8 @@ describe("basic message entities", () => {
 		});
 	});
 });
-describe("complex structure of message entities", () => {
-	test("should return bold plus italic text", () => {
+describe("complex message building", () => {
+	test("should build message witch bold and italic elements", () => {
 		let params = MessageBuilder.build(f => 
 			`${f.bold("bold")} but ${f.italic("italic")}`
 		);
@@ -62,7 +62,7 @@ describe("complex structure of message entities", () => {
 		});
 	});
 
-	test("should return code+italic+bold+spoler text", () => {
+	test("should build message with code, italic, bold, spoler elements", () => {
 		let params = MessageBuilder.build(f => [f.code, f.italic, f.bold, f.spoiler]
 			.reduce((acc, v) => v.bind(f)(acc), "text")
 		);
@@ -78,7 +78,7 @@ describe("complex structure of message entities", () => {
 	});
 });
 describe("concatenations", () => {
-	test("should correctly connect two message entities", () => {
+	test("should connect two message correctly", () => {
 		let firstEntity = MessageBuilder.build(f => `i am ${f.bold("first")}!\n`);
 		let secondEntity = MessageBuilder.build(f => `i am ${f.italic("second")}!`);
 

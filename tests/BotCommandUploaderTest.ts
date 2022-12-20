@@ -28,7 +28,7 @@ beforeEach(() => {
 	apiMock.clear();
 });
 
-test("should correctly set command list", async () => {
+test("should create command list correctly", async () => {
 	let result: Record<string, any>;
 	let list = new BotCommandList().add("/test", "a test command");
 	hearGetCommands([]);
@@ -45,7 +45,7 @@ test("should correctly set command list", async () => {
 		scope: { type: "default" }
 	});
 });
-test("should correctly add several commands in a command list", async () => {
+test("should add several commands into command list", async () => {
 	let result: Record<string, any>;
 	let list = new BotCommandList()
 		.add("test", "a test command")
@@ -70,7 +70,7 @@ test("should correctly add several commands in a command list", async () => {
 		scope: { type: "default" }
 	});
 });
-test("should correctly set multilanguage command list", async () => {
+test("should set multilanguage command list", async () => {
 	let result: Record<string, any>[] = [];
 	let list = new BotCommandList()
 		.add("test", "a test command")
@@ -110,7 +110,7 @@ class CommandHandler {
 		return Promise.resolve(Math.random());
 	}
 }
-test("should correctly work with decorated entities", async () => {
+test("should handle decorated entities correctly", async () => {
 	let result: Record<string, any>;
 	let list = new BotCommandList().implementDecorators(new CommandHandler);
 	hearGetCommands([]);

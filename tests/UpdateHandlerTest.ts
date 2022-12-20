@@ -16,7 +16,7 @@ beforeEach(() => {
 	handler = new UpdateHandler(null);
 });
 describe("onUpdate", () => {
-	test("check correct work of next function in middleware", async () => {
+	test("should handle next() correctly", async () => {
 		let handledUpdateCount = 0;
 		let update = baseUpdate;
 		let testHandler = (_: any, next: () => void) => {
@@ -31,7 +31,7 @@ describe("onUpdate", () => {
 
 		expect(handledUpdateCount).toBe(4);
 	});
-	test("should correct match with update type", async () => {
+	test("should match correct update type", async () => {
 		let handledUpdateCount = 0;
 		let update: IUpdateResult = {
 			...baseUpdate,
@@ -65,7 +65,7 @@ describe("hearCallbackQuery", () => {
 			data: "nodata"
 		}
 	};
-	test("should match 7 handlers", async () => {
+	test("should handle 7 updates", async () => {
 		let handleCounter = 0;
 		let fn = (_: any, next: () => void) => {
 			handleCounter++;
@@ -82,7 +82,7 @@ describe("hearCallbackQuery", () => {
 
 		expect(handleCounter).toBe(7);
 	});
-	test("check validity of CallbackQueryContext parsing", async () => {
+	test("should parse CallbackQueryContext correctly", async () => {
 		let ctx: CallbackQueryContext;
 		let { callback_query: query } = update;
 		query.data = "somedatahere!";
@@ -105,7 +105,7 @@ describe("hearCallbackQuery", () => {
 
 describe("hearCommand", () => {
 	let update = baseUpdate;
-	test("should pass basic string match", async () => {
+	test("should match command by text", async () => {
 		let handled = false;
 		handler.hearCommand("/test", () => { handled = true; });
 
@@ -113,7 +113,7 @@ describe("hearCommand", () => {
 		
 		expect(handled).toBe(true);
 	});
-	test("should pass string[] match", async () => {
+	test("should match command by basic text array", async () => {
 		let handledCommads = 0;
 		handler.hearCommand(["/test", "/test2"], () => { handledCommads++; });
 
@@ -123,7 +123,7 @@ describe("hearCommand", () => {
 		
 		expect(handledCommads).toBe(2);
 	});
-	test("should pass regex match", async () => {
+	test("should match command by regex", async () => {
 		let handledCommads = 0;
 		handler.hearCommand(/^\/test/i, () => { handledCommads++; });
 
@@ -138,7 +138,7 @@ describe("hearCommand", () => {
 describe("use", () => {
 	let update = baseUpdate;
 
-	test("check right handling queue", async () => {
+	test("should handle the queue orderly", async () => {
 		let queue: string[] = [];	
 		handler.hearCommand(/^\/test/i, (_, next) => {
 			queue.push("hearCommand");
@@ -170,7 +170,7 @@ describe("onMessageEvent", () => {
 		}
 	};
 
-	test("should be called", async () => {
+	test("should match update", async () => {
 		let handledEvents = 0;
 		handler.onMessageEvent("photo", (_, next) => {
 			handledEvents++;
@@ -184,7 +184,7 @@ describe("onMessageEvent", () => {
 });
 
 describe("setContext", () => {
-	test("should pass a custom context to next handler", async () => {
+	test("should provde a custom context into next()", async () => {
 		let update = baseUpdate;
 		let payload: string;
 		handler.setContext("message", TestMessage);
@@ -200,7 +200,7 @@ describe("setContext", () => {
 
 		expect(payload).toBe("secret payload");
 	});
-	test("should replace basic message context on custom", async () => {
+	test("should set custom message context correctly", async () => {
 		let update = baseUpdate;
 		let testMessagePayload: string;
 		handler.setContext("message", TestMessage);
@@ -221,7 +221,7 @@ describe("setContext", () => {
 		}
 	}
 
-	test("should replace basic callback query context on custom", async () => {
+	test("should set custom callback query context correctly", async () => {
 		let ctx: TestCallbackQuery;
 		let update: IUpdateResult = {
 			update_id: 2,

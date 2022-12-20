@@ -1,5 +1,5 @@
-import {IInlineKeyboardButton, IKeyboardButton} from "./types/IKeyboard";
-import {IMessageSendParams} from "./types/params/ISendParams";
+import {IKeyboardInlineButton, IKeyboardButton} from "../types/IKeyboard";
+import {IMessageSendParams} from "../types/params/ISendParams";
 
 abstract class BaseButton {
 	constructor(public readonly text: string) {}
@@ -48,7 +48,7 @@ export class InlineButton extends BaseButton {
 	}
 
 	public toObject() {
-		let btn: IInlineKeyboardButton = {
+		let btn: IKeyboardInlineButton = {
 			text: this.text,
 			callback_data: this.payload,
 			url: this.url,
@@ -58,7 +58,7 @@ export class InlineButton extends BaseButton {
 
 		return Object.entries(btn)
 			.filter(([_, v]) => v != null)
-			.reduce((acc, [key, val]) => ({ [key]: val, ...acc }), {}) as IInlineKeyboardButton;
+			.reduce((acc, [key, val]) => ({ [key]: val, ...acc }), {}) as IKeyboardInlineButton;
 	}
 }
 export class InlineKeyboardBuilder extends BaseKeyboardBuilder<InlineButton> {

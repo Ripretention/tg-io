@@ -1,11 +1,11 @@
-import {Button, InlineButton, InlineKeyboardBuilder, KeyboardBuilder} from "../src/KeyboardBuilder";
-import {IInlineKeyboardButton, IKeyboardButton} from "../src/types/IKeyboard";
+import {Button, InlineButton, InlineKeyboardBuilder, KeyboardBuilder} from "../src/builders/KeyboardBuilder";
+import {IKeyboardInlineButton, IKeyboardButton} from "../src/types/IKeyboard";
 
 describe("Inline Keyboard Builder", () => {
 	const keyboard = new InlineKeyboardBuilder();
 	afterEach(keyboard.clear.bind(keyboard));
 
-	test("should return keyboard with every possible inline button", () => {
+	test("should build keyboard with every type of inline buttons", () => {
 		let cbBtn = new InlineButton({ text: "hello", payload: "some_info" });
 		keyboard.add(cbBtn);
 		let urlBtn = new InlineButton({ text: "click me", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" });
@@ -24,7 +24,7 @@ describe("Inline Keyboard Builder", () => {
 					{ text: urlBtn.text, url: urlBtn.url },
 					{ text: chatSelectBtn.text, switch_inline_query: chatSelectBtn.switchQuery },
 					{ text: currentChatQueryBtn.text, switch_inline_query_current_chat: currentChatQueryBtn.switchCurrentChatQuery }
-				] as Partial<IInlineKeyboardButton>[]
+				] as Partial<IKeyboardInlineButton>[]
 			]
 		});
 	});
@@ -42,7 +42,7 @@ describe("Keyboard Builder", () => {
 	const keyboard = new KeyboardBuilder();
 	afterEach(keyboard.clear.bind(keyboard));
 
-	test("should return keyboard with every possible button", () => {
+	test("should build keyboard with every type of buttons", () => {
 		let textBtn = new Button("text");
 		let contactBtn = new Button("text", "contact");
 		let locationBtn = new Button("text", "location"); 
@@ -69,7 +69,7 @@ describe("Keyboard Builder", () => {
 			]
 		});
 	});
-	test("should return keyboard with every possible options", () => {
+	test("should build keyboard with complex options", () => {
 		keyboard
 			.setOneTime()
 			.setResize()

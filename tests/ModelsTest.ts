@@ -1,7 +1,7 @@
 import {User} from "../src/models";
 import {IUser} from "../src/types";
 
-describe("user model", () => {
+describe("User", () => {
 	let rawUser: IUser = {
 		id: 1,
 		first_name: "Pavel",
@@ -11,14 +11,14 @@ describe("user model", () => {
 		username: "durov"
 	};
 
-	test("should return a correct appeal (username)", () => {
+	test("should return username", () => {
 		let user = new User(rawUser);
 		
 		let result = user.appeal;
 
 		expect(result).toBe("@durov");
 	});
-	test("should return a correct appeal (fullname)", () => {
+	test("should return fullname", () => {
 		rawUser.username = null;
 		let user = new User(rawUser);
 		
@@ -26,7 +26,7 @@ describe("user model", () => {
 
 		expect(result).toBe("Pavel Durov");
 	});
-	test("should return a correct appeal (firstname)", () => {
+	test("should return first name", () => {
 		rawUser.username = null;
 		rawUser.last_name = null;
 		let user = new User(rawUser);

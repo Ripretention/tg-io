@@ -66,7 +66,7 @@ beforeEach(() => {
 	decoratedHandler = new UniversalTestHandler();
 });
 
-test("should return a correct result of command, given that the context must be correct", async () => {
+test("should handle command correctly, given that the context must be correct", async () => {
 	decoratedHandler.payload = "lol";
 	handler.implementDecorators(decoratedHandler);
 
@@ -76,7 +76,7 @@ test("should return a correct result of command, given that the context must be 
 	expect(result).toBe("1lol");
 });
 
-test("should return update_id from use handler", async () => {
+test("should get correct update_id from use handler", async () => {
 	handler.implementDecorators(decoratedHandler);
 
 	await handler.handle(baseUpdate);
@@ -85,7 +85,7 @@ test("should return update_id from use handler", async () => {
 	expect(result).toBe(baseUpdate.update_id.toString());
 });
 
-test("should correctly match event type", async () => {
+test("should match event type correctly", async () => {
 	let upd = JSON.parse(JSON.stringify(baseUpdate));
 	upd.message.text = "";
 	upd.message.photo = [{ 
@@ -103,7 +103,7 @@ test("should correctly match event type", async () => {
 	expect(result).toBe(1);
 });
 
-test("should correctly handle several updates", async () => {
+test("should handle several very updates correctly", async () => {
 	handler.implementDecorators(decoratedHandler);
 
 	await handler.handle(baseUpdate);

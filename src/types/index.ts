@@ -1,4 +1,5 @@
 export * from "./IAttachment";
+export * from "./IBotCommand";
 export * from "./ICallbackQuery";
 export * from "./IChat";
 export * from "./IKeyboard";

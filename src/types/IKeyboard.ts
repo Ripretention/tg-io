@@ -18,10 +18,10 @@ export interface IKeyboardRemove {
 	selective?: boolean;
 }
 
-export interface IInlineKeyboard {
-	inline_keyboard: IInlineKeyboardButton[][];
+export interface IKeyboardInline {
+	inline_keyboard: IKeyboardInlineButton[][];
 }
-export interface IInlineKeyboardButton {
+export interface IKeyboardInlineButton {
 	text: string;
 	url?: string;
 	callback_data?: string;

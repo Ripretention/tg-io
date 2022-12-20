@@ -35,8 +35,8 @@ beforeEach(() => {
 	apiMock.clear();
 });
 
-describe("text messages", () => {
-	test("should send message with a correct chat_id and text fields", async () => {
+describe("sending text messages", () => {
+	test("should set chat_id and text for a message correctly", async () => {
 		let handled = false;
 		hearSendMethod(
 			"Message", 
@@ -48,7 +48,7 @@ describe("text messages", () => {
 
 		expect(handled).toBe(true);
 	});
-	test("should correctly parse a string argument", async () => {
+	test("should parse single text argument correctly", async () => {
 		let handled = false;
 		hearSendMethod(
 			"Message", 
@@ -60,7 +60,7 @@ describe("text messages", () => {
 
 		expect(handled).toBe(true);
 	});
-	test("should correctly set replied message", async () => {
+	test("should reply message correctly", async () => {
 		let handled = false;
 		hearSendMethod(
 			"Message", 
@@ -73,8 +73,8 @@ describe("text messages", () => {
 		expect(handled).toBe(true);
 	});
 });
-describe("attachments", () => {
-	test("should parse source from an instance of Attachment (attach)", async () => {
+describe("sending attachments", () => {
+	test("should parse instance (Attachment) source argument correctly", async () => {
 		let fileId = null;
 		hearSendMethod(
 			"Photo", 
@@ -91,7 +91,7 @@ describe("attachments", () => {
 
 		expect(fileId).toBe("123");
 	});
-	test("should parse source from a url (attach)", async () => {
+	test("should handle url source argument correctly", async () => {
 		let expectedUrl = "https://someaudio.com/audio.mp3";
 		let url = null;
 		hearSendMethod(
@@ -104,7 +104,7 @@ describe("attachments", () => {
 
 		expect(url).toBe(expectedUrl);
 	});
-	test("should correctly parse caption from argument (send method)", async () => {
+	test("should handle caption argument correctly", async () => {
 		let randomCaption = Math.random().toString();
 		let caption = null;
 		hearSendMethod(
@@ -117,7 +117,7 @@ describe("attachments", () => {
 
 		expect(caption).toBe(randomCaption);
 	});
-	test("should correctly set reply_to_message_id", async () => {
+	test("should reply an attachemnt correctly", async () => {
 		let id = null;
 		hearSendMethod(
 			"Video", 
