@@ -132,12 +132,13 @@ tg.commands
   .resetLanguage();
 
 class AdminCommandsHandler {
-  @TgCommandInfo("ping", "get a ping")
+  constructor(private readonly botname: string) {}
+  @TgCommandInfo<AdminCommandsHandler>("ping", h => `get ${h.botname}' ping`)
   @TgCommand(/^\/ping$/)
   public sendPing(ctx: TgContext.Message) {
     // some code here..
   }
 }
-tg.commands.implementDecorators(new AdminCommandsHandler());
+tg.commands.implementDecorators(new AdminCommandsHandler("smaple-bot"));
 tg.uploadCommands();
 ```

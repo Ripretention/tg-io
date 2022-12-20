@@ -2,11 +2,14 @@ import {IBotCommand, IBotCommandScope} from "../types/IBotCommand";
 import {ObjectUtils} from "../Utils";
 import {BotCommandList} from "./BotCommandList";
 
+type CommandParameter<T> = ((arg: T) => string) | string;
 export class CommandInfoDecoratorMetadata {
 	private readonly storage: ({ 
-		lang?: string;
+		command: CommandParameter<any>;
+		description: CommandParameter<any>;
+		lang?: CommandParameter<any>;
 		scope: IBotCommandScope;
-	} & IBotCommand)[] = [];
+	})[] = [];
 	public add(
 		command: string,
 		description: string,
@@ -20,17 +23,20 @@ export class CommandInfoDecoratorMetadata {
 			scope: (scope ?? { type: "default" })
 		});
 	}
-	public implement(cmdList: BotCommandList) {
+	public implement<T>(cmdList: BotCommandList, instance: T) {
 		let initLanguage = cmdList.getLang();
 		let initScope = cmdList.getScope();
 		for (let cmd of this.storage) {
-			cmdList.setLanguage(cmd.lang);
+			cmdList.setLanguage(this.parseCommandParameter(cmd.lang, instance));
 			cmdList.setScope(
 				cmd.scope.type,
 				ObjectUtils.filterObjectByKey(cmd.scope, k => k !== "type")
 			);
 
-			cmdList.add(cmd.command, cmd.description);
+			cmdList.add(
+				this.parseCommandParameter(cmd.command, instance), 
+				this.parseCommandParameter(cmd.description, instance), 
+			);
 		}
 
 		cmdList.setLanguage(initLanguage);
@@ -39,11 +45,16 @@ export class CommandInfoDecoratorMetadata {
 			ObjectUtils.filterObjectByKey(initScope, k => k !== "type")
 		);
 	}
+	private parseCommandParameter<T>(param: CommandParameter<T>, arg: T) {
+		return typeof param === "function"
+			? param(arg)
+			: param;
+	}
 }
-export function CommandInfo(
-	command: string,
-	descroption: string,
-	language?: string,
+export function CommandInfo<T>(
+	command: CommandParameter<T>,
+	description: CommandParameter<T>,
+	language?: CommandParameter<T>,
 	scope?: IBotCommandScope
 ): MethodDecorator {
 	return target => {
@@ -51,7 +62,7 @@ export function CommandInfo(
 			target.constructor.prototype.__tgCommandInfo = new CommandInfoDecoratorMetadata();
 		let metadata = target.constructor.prototype.__tgCommandInfo;
 
-		metadata.add(command, descroption, language, scope);
+		metadata.add(command, description, language, scope);
 		return target;
 	};
 }

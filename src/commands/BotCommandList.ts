@@ -45,7 +45,7 @@ export class BotCommandList {
 			if (!metadata)
 				continue;
 
-			metadata.implement(this);
+			metadata.implement(this, handler);
 		}
 		return this;
 	}

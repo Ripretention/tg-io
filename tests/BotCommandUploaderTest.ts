@@ -100,6 +100,8 @@ test("should set multilanguage command list", async () => {
 	]);
 });
 class CommandHandler {
+	constructor(public readonly secretCommandName: string) {}
+
 	@CommandInfo("ping", "get a ping")
 	public getPing() {
 		return Promise.resolve(0);
@@ -109,10 +111,15 @@ class CommandHandler {
 	public getRandom() {
 		return Promise.resolve(Math.random());
 	}
+
+	@CommandInfo<CommandHandler>(h => h.secretCommandName, "get the secret")
+	public getSecret() {
+		return Promise.resolve("pf, no");
+	}
 }
 test("should handle decorated entities correctly", async () => {
 	let result: Record<string, any>;
-	let list = new BotCommandList().implementDecorators(new CommandHandler);
+	let list = new BotCommandList().implementDecorators(new CommandHandler("secret32"));
 	hearGetCommands([]);
 	hearSetCommands(p => { result = p; });
 	
@@ -127,6 +134,10 @@ test("should handle decorated entities correctly", async () => {
 			{ 
 				command: "rand",
 				description: "get a random number"
+			},
+			{ 
+				command: "secret32",
+				description: "get the secret"
 			},
 		],
 		language_code: "",
