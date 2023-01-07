@@ -1,11 +1,11 @@
 import {IKeyboardInlineButton, IKeyboardButton} from "../types/IKeyboard";
 import {IMessageSendParams} from "../types/params/ISendParams";
 
-abstract class BaseButton {
+export abstract class BaseButton {
 	constructor(public readonly text: string) {}
 	public abstract toObject(): Record<string, any>;
 }
-abstract class BaseKeyboardBuilder<TButton extends BaseButton> {
+export abstract class BaseKeyboardBuilder<TButton extends BaseButton> {
 	protected buttons: TButton[][] = [];
 
 	public add(btn: TButton) {
@@ -34,6 +34,7 @@ export class InlineButton extends BaseButton {
 	public readonly payload: string;
 	public readonly switchQuery: string;
 	public readonly switchCurrentChatQuery: string;
+
 	constructor(params: {
 		text: string,
 		url?: string,

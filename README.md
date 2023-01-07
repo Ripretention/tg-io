@@ -26,17 +26,6 @@ async function run() {
 run().catch(console.error);
 ```
 
-## Elastic work with text styles
-```typescript
-import { TgMessageBuilder } from "tg-io";
-
-tg.updates.hearCommand(/^\/gimme bold (.+)/i, ctx =>
-  ctx.replyMessage(TgMessageBuilder.build(f =>
-    `take your ${f.italic("bold")}. dude: ${f.bold(ctx.match[1])}`
-  ))
-);
-```
-
 ## Flexible way to interract with buttons
 ```typescript
 import { TgKeyboard } from "tg-io";
@@ -69,7 +58,7 @@ import { TgContext } from "tg-io";
 class CustomMessageContext extends TgContext.Message {
   public isAdmin = () => this.sender.id === 1;
   public answer = (text: string) => 
-    this.sendMessage(MessageBuilder.build(b => `@${b.mention(this.sender.username)}, ${text}`));
+    this.sendMessage(`${this.sender.appeal}, ${text}`);
 }
 
 tg.updates.setContext("message", CustomMessageContext);

@@ -1,7 +1,7 @@
 import {Api} from "./src/Api";
 import {EventTransport, Polling} from "./src/transports";
 import {UpdateHandler} from "./src/UpdateHandler";
-import {MessageBuilder, Keyboard} from "./src/builders";
+import {Keyboard} from "./src/builders";
 import {BotCommandList} from "./src/commands/BotCommandList";
 import {BotCommandUploader} from "./src/commands/BotCommandUploader";
 
@@ -29,7 +29,6 @@ export {
 	Api as TgApi, 
 	Polling as TgPolling, 
 	UpdateHandler as TgUpdateHandler,
-	MessageBuilder as TgMessageBuilder,
 	Keyboard as TgKeyboard,
 	BotCommandList as TgBotCommandList
 };

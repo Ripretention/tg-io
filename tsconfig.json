@@ -8,5 +8,6 @@
 		],
 		"experimentalDecorators": true,
 		"outDir": "lib/"
-	}
+	},
+	"exclude": ["node_modules", "lib"]
 }
