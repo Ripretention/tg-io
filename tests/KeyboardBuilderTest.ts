@@ -1,4 +1,4 @@
-import {Button, InlineButton, InlineKeyboardBuilder, KeyboardBuilder} from "../src/builders/KeyboardBuilder";
+import {Button, InlineButton, InlineKeyboardBuilder, KeyboardBuilder} from "../src/models/keyboard";
 import {IKeyboardInlineButton, IKeyboardButton} from "../src/types/IKeyboard";
 
 describe("Inline Keyboard Builder", () => {

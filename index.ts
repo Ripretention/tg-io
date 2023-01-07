@@ -1,7 +1,7 @@
 import {Api} from "./src/Api";
 import {EventTransport, Polling} from "./src/transports";
 import {UpdateHandler} from "./src/UpdateHandler";
-import {Keyboard} from "./src/builders";
+import * as Keyboard from "./src/models/keyboard";
 import {BotCommandList} from "./src/commands/BotCommandList";
 import {BotCommandUploader} from "./src/commands/BotCommandUploader";
 
