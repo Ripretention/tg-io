@@ -1,13 +1,11 @@
 {
-	"compilerOptions": {
-		"declaration": true,
-		"target": "ES2017",
-		"module": "CommonJS",
-		"lib": [
-			"es2019"
-		],
-		"experimentalDecorators": true,
-		"outDir": "lib/"
-	},
-	"exclude": ["node_modules", "lib"]
+  "compilerOptions": {
+    "declaration": true,
+    "target": "ES2017",
+    "module": "CommonJS",
+    "lib": ["es2019"],
+    "experimentalDecorators": true,
+    "outDir": "lib/"
+  },
+  "exclude": ["node_modules", "lib"]
 }

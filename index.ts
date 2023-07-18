@@ -1,12 +1,12 @@
-import {Api} from "./src/Api";
-import {EventTransport, Polling} from "./src/transports";
-import {UpdateHandler} from "./src/UpdateHandler";
+import { Api } from "./src/Api";
+import { EventTransport, Polling } from "./src/transports";
+import { UpdateHandler } from "./src/UpdateHandler";
 import * as Keyboard from "./src/models/keyboard";
-import {BotCommandList} from "./src/commands/BotCommandList";
-import {BotCommandUploader} from "./src/commands/BotCommandUploader";
+import { BotCommandList } from "./src/commands/BotCommandList";
+import { BotCommandUploader} from './src/commands/BotCommandUploader';
 
 export class Tg {
-	constructor(private readonly token: string) {}
+	constructor(private readonly token: string) { }
 
 	public eventTransport: EventTransport;
 	public readonly commands = new BotCommandList();
@@ -25,9 +25,9 @@ export class Tg {
 		return uploader.upload(this.commands);
 	}
 }
-export { 
-	Api as TgApi, 
-	Polling as TgPolling, 
+export {
+	Api as TgApi,
+	Polling as TgPolling,
 	UpdateHandler as TgUpdateHandler,
 	Keyboard as TgKeyboard,
 	BotCommandList as TgBotCommandList
