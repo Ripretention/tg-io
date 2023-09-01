@@ -1,39 +1,39 @@
 import { Api } from "../Api";
 import { ReadStream } from "fs";
 import { capitalize } from "../utils";
-import { Message } from "../models/Message";
+import { Message, Attachment } from "../models";
 import { ChatContext } from "./ChatContext";
-import { IMessage } from "../types/IMessage";
-import { IUpdateResult } from "../types/IUpdate";
-import { Attachment } from "../models/attachments";
+import * as Params from "../types/params";
 import {
-	ICaptionEditParams,
-	ITextEditParams,
-} from "../types/params/IEditParams";
-import {
-	AttachmentType,
-	IAttachmentSendParams,
-	IBaseSendParams,
-} from "../types/params/ISendParams";
-import {
+	IUpdateResult,
+	IMessage,
 	IAttachment,
 	IAudioAttachment,
 	IDocumentAttachment,
 	IPhotoAttachment,
 	IVideoAttachment,
 	IVoiceAttachment,
-} from "../types/IAttachment";
+	IKeyboard,
+	IKeyboardInline,
+} from "../types";
+import { AttachmentType, IAttachmentSendParams } from "../types/params";
 
 type AttachmentSource<TAttachment extends IAttachment> =
 	| string
 	| Buffer
 	| ReadStream
 	| Attachment<TAttachment>;
-type SendMessageParams = string | ({ text: string } & Partial<IBaseSendParams>);
+type SendMessageParams =
+	| string
+	| ({ text: string } & Partial<Params.IBaseSendParams>);
+
 export class MessageContext extends Message {
 	public match: string[] = [];
 	public chat = new ChatContext(this.api, this.get("chat"));
-	constructor(private readonly api: Api, source: IMessage) {
+	constructor(
+		private readonly api: Api,
+		source: IMessage
+	) {
 		super(source);
 	}
 
@@ -52,18 +52,49 @@ export class MessageContext extends Message {
 		return this.execute<boolean>("unpinAllChatMessages", {});
 	}
 
-	public editText(
+	public async editText(
 		text: string = this.text,
-		params: Partial<ITextEditParams | ICaptionEditParams> = {}
+		params: Partial<Params.ITextEditParams | Params.ICaptionEditParams> = {}
 	) {
-		let isCaptionEdit =
-			(params && params.message_id) || this.hasAttachments;
-		
+		let isCaptionEdit = this.hasAttachments;
+
 		params[isCaptionEdit ? "caption" : "text"] = text;
-		return this.execute<IUpdateResult>(
+		if (!params.message_id) {
+			params.message_id = this.id;
+		}
+		if (params.message_id === this.id) {
+			this.text = text;
+			this.keyboard = params.reply_markup ?? this.keyboard;
+		}
+
+		let response = await this.execute<boolean | IUpdateResult>(
 			isCaptionEdit ? "editMessageCaption" : "editMessageText",
 			params
 		);
+		return typeof response === "object"
+			? new Message(response.message)
+			: undefined;
+	}
+	public async editKeyboard(
+		keyboard: IKeyboard | IKeyboardInline,
+		params: Partial<Params.IBaseEditParams> = {}
+	) {
+		params.reply_markup = keyboard;
+
+		if (!params.message_id) {
+			params.message_id = this.id;
+		}
+		if (params.message_id === this.id) {
+			this.keyboard = keyboard;
+		}
+
+		let response = await this.execute<boolean | IUpdateResult>(
+			"editMessageReplyMarkup",
+			params
+		);
+		return typeof response === "object"
+			? new Message(response.message)
+			: undefined;
 	}
 	public delete(msgId = this.id) {
 		return this.execute<boolean>("deleteMessage", {
@@ -112,7 +143,7 @@ export class MessageContext extends Message {
 	public readonly sendDocument =
 		this.sendAttachWithCaption<IDocumentAttachment>("document");
 	private sendAttachWithCaption<
-		TAttachment extends { caption?: string } & IAttachment
+		TAttachment extends { caption?: string } & IAttachment,
 	>(type: AttachmentType, reply = false) {
 		return (
 			source: AttachmentSource<TAttachment>,
@@ -130,7 +161,7 @@ export class MessageContext extends Message {
 	public async attach<TAttachmentType extends AttachmentType>(
 		type: TAttachmentType,
 		source: AttachmentSource<any>,
-		params: Partial<IAttachmentSendParams> = {}
+		params: Partial<Params.IAttachmentSendParams> = {}
 	) {
 		let sourceParams = {
 			[type]:
@@ -146,11 +177,14 @@ export class MessageContext extends Message {
 		);
 		return new Message(response.message);
 	}
-	private reply(method: string, params: Partial<IBaseSendParams>) {
+	private reply(method: string, params: Partial<Params.IBaseSendParams>) {
 		params.reply_to_message_id = this.id;
 		return this.send(method, params);
 	}
-	private async send(method: string, params: Partial<IBaseSendParams>) {
+	private async send(
+		method: string,
+		params: Partial<Params.IBaseSendParams>
+	) {
 		params.chat_id = this.chat.id;
 		let response = await this.execute<IUpdateResult>(
 			`send${capitalize(method)}`,

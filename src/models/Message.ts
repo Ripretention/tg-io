@@ -14,6 +14,8 @@ export class Message extends Entity<IMessage> {
 		"reply_to_message",
 		Message
 	);
+
+	public keyboard = this.get("reply_markup");
 	public text = this.get("text") ?? this.get("caption");
 	public entities = this.get("entities") ?? this.get("caption_entities");
 

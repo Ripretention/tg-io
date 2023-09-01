@@ -8,6 +8,7 @@ import {
 	IVoiceAttachment,
 } from "./IAttachment";
 import { IChat } from "./IChat";
+import { IKeyboard, IKeyboardInline } from "./IKeyboard";
 import { IMessageEntity } from "./IMessageEntity";
 import { IUser } from "./IUser";
 
@@ -21,6 +22,7 @@ export interface IMessage {
 	entities?: IMessageEntity[];
 	caption?: string;
 	caption_entities?: string;
+	reply_markup?: IKeyboardInline | IKeyboard;
 
 	// attachments
 	sticker?: IStickerAttachment;
