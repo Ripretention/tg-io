@@ -54,13 +54,12 @@ export class MessageContext extends Message {
 
 	public editText(
 		text: string = this.text,
-		params?: ITextEditParams | ICaptionEditParams
+		params: Partial<ITextEditParams | ICaptionEditParams> = {}
 	) {
 		let isCaptionEdit =
 			(params && params.message_id) || this.hasAttachments;
-		if (isCaptionEdit) params["caption"] = text;
-		else params["text"] = text;
-
+		
+		params[isCaptionEdit ? "caption" : "text"] = text;
 		return this.execute<IUpdateResult>(
 			isCaptionEdit ? "editMessageCaption" : "editMessageText",
 			params
