@@ -15,6 +15,8 @@ export type UpdateHandlerFn<TUpdate> = (
 	context: TUpdate,
 	next: () => void
 ) => any;
+
+export type UpdateHandlerErrorListener = (err: unknown) => Promise<void>;
 export class UpdateHandler {
 	constructor(private readonly api: Api) {}
 
@@ -29,14 +31,25 @@ export class UpdateHandler {
 	private baseHandler = new Middleware<IUpdateResult>(this.middlewareToken);
 	private updates: { [kind: string]: Middleware<any> } = {};
 
+	private errorListener: UpdateHandlerErrorListener = err => {
+		throw err;
+	};
+	public onError(listener: UpdateHandlerErrorListener) {
+		this.errorListener = listener;
+	}
+
 	public async handle(update: IUpdateResult) {
 		this.middlewareToken.reset();
 
-		await this.baseHandler.handle(update);
-		for (let updateMiddleware of Object.keys(this.updates)
-			.filter(key => Object.keys(update).includes(key))
-			.map(key => this.updates[key])) {
-			await updateMiddleware.handle(update);
+		try {
+			await this.baseHandler.handle(update);
+			for (let updateMiddleware of Object.keys(this.updates)
+				.filter(key => Object.keys(update).includes(key))
+				.map(key => this.updates[key])) {
+				await updateMiddleware.handle(update);
+			}
+		} catch (err) {
+			await this.errorListener(err);
 		}
 	}
 

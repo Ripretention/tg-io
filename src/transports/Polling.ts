@@ -20,8 +20,8 @@ export class Polling extends EventTransport {
 			)) as IUpdateCollection;
 
 			for (let update of updates.result) {
-				await handler.handle(update);
 				offset = update.update_id + 1;
+				await handler.handle(update);
 			}
 		}
 	}

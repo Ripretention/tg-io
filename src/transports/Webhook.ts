@@ -6,6 +6,7 @@ import { EventTransport, EventTransportState } from "./EventTransport";
 import { PathLike } from "fs";
 import { readFile } from "fs/promises";
 import { IUpdateCollection } from "../types/IUpdate";
+import { IncomingMessage } from "http";
 
 type WebhookOptions = {
 	url: string;
@@ -21,7 +22,10 @@ type SupportedPort = 443 | 80 | 88 | 8443;
 export class Webhook extends EventTransport {
 	private server: https.Server;
 	private log = debug("tg-io:webhook");
-	constructor(api: Api, private readonly options: WebhookOptions) {
+	constructor(
+		api: Api,
+		private readonly options: WebhookOptions
+	) {
 		super(api);
 	}
 
@@ -31,7 +35,10 @@ export class Webhook extends EventTransport {
 	): Promise<void> {
 		if (this.state === EventTransportState.Working) return;
 
-		if (!(await this.isValid())) this.setupWebhook();
+		let isInvalid = !(await this.isValid());
+		if (isInvalid) {
+			await this.setupWebhook();
+		}
 
 		this.server = await this.createServer(handler);
 		this.server.listen(port);
@@ -39,11 +46,11 @@ export class Webhook extends EventTransport {
 		this.log(`started on ${port} port`);
 		this.state = EventTransportState.Working;
 	}
-	public stop(): void {
+	public async stop() {
 		if (this.state !== EventTransportState.Working) return;
 
 		this.log("stopped");
-		this.revokeWebhook();
+		await this.revokeWebhook();
 		this.state = EventTransportState.Stopped;
 	}
 
@@ -83,28 +90,33 @@ export class Webhook extends EventTransport {
 				key: await readFile(this.options.tls.key),
 				cert: await readFile(this.options.tls.cert),
 			},
-			async req => {
-				if (
-					this.secret &&
-					req.headers["X-Telegram-Bot-Api-Secret-Token"] !==
-						this.secret
-				)
-					return;
-
-				let chunks = [];
-				for await (let chunk of req) chunks.push(chunk);
-
-				let body: IUpdateCollection;
-				try {
-					body = JSON.parse(Buffer.concat(chunks).toString());
-				} catch (_) {
-					this.log("failed JSON parsing");
-					return;
-				}
-
-				for (let upd of body.result) await handler.handle(upd);
-			}
+			req => this.handleServerRequest(req, handler).catch(console.log)
 		);
+	}
+	private async handleServerRequest(req: IncomingMessage, handler: UpdateHandler) {
+		if (
+			this.secret &&
+			req.headers["X-Telegram-Bot-Api-Secret-Token"] !== this.secret
+		) {
+			return;
+		}
+
+		let chunks = [];
+		for await (let chunk of req) {
+			chunks.push(chunk);
+		}
+
+		let body: IUpdateCollection;
+		try {
+			body = JSON.parse(Buffer.concat(chunks).toString());
+		} catch (_) {
+			this.log("failed JSON parsing");
+			return;
+		}
+
+		for (let upd of body.result) {
+			await handler.handle(upd);
+		}
 	}
 	private get secret() {
 		return this?.options?.secret?.slice(0, 256);
