@@ -1,4 +1,4 @@
-import {IKeyboardInlineButton, IKeyboardButton} from "../../types/IKeyboard";
+import { IKeyboardInlineButton, IKeyboardButton } from "../../types/IKeyboard";
 export abstract class BaseButton {
 	constructor(public readonly text: string) {}
 	public abstract toObject(): Record<string, any>;
@@ -10,10 +10,10 @@ export class InlineButton extends BaseButton {
 	public readonly switchCurrentChatQuery: string;
 
 	constructor(params: {
-		text: string,
-		url?: string,
-		payload?: string,
-		switchQuery?: string,
+		text: string;
+		url?: string;
+		payload?: string;
+		switchQuery?: string;
 		switchCurrentChatQuery?: string;
 	}) {
 		super(params.text);
@@ -28,36 +28,40 @@ export class InlineButton extends BaseButton {
 			callback_data: this.payload,
 			url: this.url,
 			switch_inline_query: this.switchQuery,
-			switch_inline_query_current_chat: this.switchCurrentChatQuery
+			switch_inline_query_current_chat: this.switchCurrentChatQuery,
 		};
 
 		return Object.entries(btn)
 			.filter(([_, v]) => v != null)
-			.reduce((acc, [key, val]) => ({ [key]: val, ...acc }), {}) as IKeyboardInlineButton;
+			.reduce(
+				(acc, [key, val]) => ({ [key]: val, ...acc }),
+				{}
+			) as IKeyboardInlineButton;
 	}
 }
 export class Button extends BaseButton {
 	constructor(
-		text: string, 
-		private readonly requestType?: "poll_quiz" | "poll_regular" | "location" | "contact"
+		text: string,
+		private readonly requestType?:
+			| "poll_quiz"
+			| "poll_regular"
+			| "location"
+			| "contact"
 	) {
 		super(text);
 	}
 
 	public toObject() {
 		let btn = {
-			text: this.text
+			text: this.text,
 		};
 
 		let type = this.requestType;
-		if (type === "contact")
-			btn["request_contact"] = true;
-		else if (type === "location")
-			btn["request_location"] = true;
+		if (type === "contact") btn["request_contact"] = true;
+		else if (type === "location") btn["request_location"] = true;
 		else if (type === "poll_regular")
 			btn["request_poll"] = { type: "regular" };
-		else if (type === "poll_quiz")
-			btn["request_poll"] = { type: "quiz" };
+		else if (type === "poll_quiz") btn["request_poll"] = { type: "quiz" };
 
 		return btn as IKeyboardButton;
 	}

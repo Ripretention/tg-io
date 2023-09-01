@@ -1,7 +1,15 @@
-import {IAudioAttachment, IDocumentAttachment, IPhotoAttachment, IStickerAttachment, IVideoAttachment, IVideoNoteAttachment, IVoiceAttachment} from "./IAttachment";
-import {IChat} from "./IChat";
-import {IMessageEntity} from "./IMessageEntity";
-import {IUser} from "./IUser";
+import {
+	IAudioAttachment,
+	IDocumentAttachment,
+	IPhotoAttachment,
+	IStickerAttachment,
+	IVideoAttachment,
+	IVideoNoteAttachment,
+	IVoiceAttachment,
+} from "./IAttachment";
+import { IChat } from "./IChat";
+import { IMessageEntity } from "./IMessageEntity";
+import { IUser } from "./IUser";
 
 export interface IMessage {
 	readonly message_id: number;

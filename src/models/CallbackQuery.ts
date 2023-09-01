@@ -1,7 +1,7 @@
-import {ICallbackQuery} from "../types/ICallbackQuery";
-import {Entity} from "./Entity";
-import {Message} from "./Message";
-import {User} from "./User";
+import { ICallbackQuery } from "../types/ICallbackQuery";
+import { Entity } from "./Entity";
+import { Message } from "./Message";
+import { User } from "./User";
 
 export class CallbackQuery extends Entity<ICallbackQuery> {
 	public id = this.get("id");

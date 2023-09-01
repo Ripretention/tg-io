@@ -1,18 +1,16 @@
 {
-	"verbose": true,
-	"preset": "ts-jest/presets/default-esm",
-	"testEnvironment": "node",
-	"testMatch": ["<rootDir>/tests/**"],
-	"transform": {
-		"\\.(?:ts|d\\.ts)": [
-			"ts-jest",
-			{
-				"useESM": true,
-				"isolatedModules": true
-			}
-		]
-	},
-	"testPathIgnorePatterns": [
-      "<rootDir>/tests/utils"
+  "verbose": true,
+  "preset": "ts-jest/presets/default-esm",
+  "testEnvironment": "node",
+  "testMatch": ["<rootDir>/tests/**"],
+  "transform": {
+    "\\.(?:ts|d\\.ts)": [
+      "ts-jest",
+      {
+        "useESM": true,
+        "isolatedModules": true
+      }
     ]
+  },
+  "testPathIgnorePatterns": ["<rootDir>/tests/utils"]
 }

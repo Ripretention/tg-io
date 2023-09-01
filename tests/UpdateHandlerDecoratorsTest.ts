@@ -1,15 +1,20 @@
-import {MessageContext} from "../src/contexts/MessageContext";
-import {CallbackQuery} from "../src/models";
-import {IUpdateResult} from "../src/types";
-import {UpdateHandler} from "../src/UpdateHandler";
-import {Command, Event, Update, Use} from "../src/UpdateHandlerDecorators";
+import * as Context from "../src/contexts";
+import { IUpdateResult } from "../src/types";
+import { UpdateHandler } from "../src/UpdateHandler";
+import {
+	Command,
+	Event,
+	Update,
+	Use,
+	CallbackQuery,
+} from "../src/decorators/UpdateHandlerDecorators";
 
 const baseUpdate: IUpdateResult = {
 	update_id: 132,
 	message: {
-		message_id: 1,	
+		message_id: 1,
 		date: null,
-		text: "/test command"
+		text: "/test command",
 	},
 	callback_query: {
 		id: "qwe123",
@@ -17,18 +22,28 @@ const baseUpdate: IUpdateResult = {
 		from: {
 			id: 1,
 			is_bot: false,
-			first_name: "Durov"
+			first_name: "Durov",
 		},
-		data: "nodata"
-	}
+		data: "nodata",
+	},
 };
 class UniversalTestHandler {
 	public payload: string;
 
 	public commandOutput: string;
 	@Command(/test command/i)
-	public testCommandDecorator(ctx: MessageContext, next: () => void) {
+	public testCommandDecorator(ctx: Context.Message, next: () => void) {
 		this.commandOutput = ctx.id.toString() + this.payload;
+		next();
+	}
+
+	public callbackData: string;
+	@CallbackQuery("nodata")
+	public testCallbackQueryDecorator(
+		ctx: Context.CallbackQuery,
+		next: () => void
+	) {
+		this.callbackData = ctx.data;
 		next();
 	}
 
@@ -41,19 +56,19 @@ class UniversalTestHandler {
 
 	public eventOutput = 0;
 	@Event("photo")
-	public testEventDecorator(_: MessageContext, next: () => void) {
+	public testEventDecorator(_: unknown, next: () => void) {
 		++this.eventOutput;
 		next();
 	}
 
 	public updateOutput: string[] = [];
 	@Update("message")
-	public testUpdateMsg(_: MessageContext, next: () => void) {
+	public testUpdateMsg(_: unknown, next: () => void) {
 		this.updateOutput.push("message");
 		next();
 	}
 	@Update("callback_query")
-	public testUpdateCb(_: CallbackQuery, next: () => void) {
+	public testUpdateCb(_: unknown, next: () => void) {
 		this.updateOutput.push("callback_query");
 		next();
 	}
@@ -76,6 +91,15 @@ test("should handle command correctly, given that the context must be correct", 
 	expect(result).toBe("1lol");
 });
 
+test("should handle callback_query correctly", async () => {
+	handler.implementDecorators(decoratedHandler);
+
+	await handler.handle(baseUpdate);
+	let result = decoratedHandler.callbackData;
+
+	expect(result).toBe(baseUpdate.callback_query.data);
+});
+
 test("should get correct update_id from use handler", async () => {
 	handler.implementDecorators(decoratedHandler);
 
@@ -88,12 +112,14 @@ test("should get correct update_id from use handler", async () => {
 test("should match event type correctly", async () => {
 	let upd = JSON.parse(JSON.stringify(baseUpdate));
 	upd.message.text = "";
-	upd.message.photo = [{ 
-		file_id: "lol",
-		file_unique_id: "lol2",
-		height: 100,
-		width: 100 
-	}];
+	upd.message.photo = [
+		{
+			file_id: "lol",
+			file_unique_id: "lol2",
+			height: 100,
+			width: 100,
+		},
+	];
 	handler.implementDecorators(decoratedHandler);
 
 	await handler.handle(upd);

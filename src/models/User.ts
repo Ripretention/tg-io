@@ -1,8 +1,8 @@
-import {IUser} from "../types/IUser";
-import {Entity} from "./Entity";
+import { IUser } from "../types/IUser";
+import { Entity } from "./Entity";
 
 export class User extends Entity<IUser> {
-	public readonly id = this.get("id");	
+	public readonly id = this.get("id");
 	public readonly firstname = this.get("first_name");
 	public readonly lastname = this.get("last_name");
 	public readonly username = this.get("username");
@@ -10,8 +10,7 @@ export class User extends Entity<IUser> {
 
 	public get appeal() {
 		let username = this.username;
-		if (username)
-			username = "@" + username;
+		if (username) username = "@" + username;
 
 		return username ?? this.fullname;
 	}
@@ -20,8 +19,7 @@ export class User extends Entity<IUser> {
 	}
 	public get fullname() {
 		let fullname = this.firstname;
-		if (this.lastname)
-			fullname += ` ${this.lastname}`;
+		if (this.lastname) fullname += ` ${this.lastname}`;
 
 		return fullname;
 	}

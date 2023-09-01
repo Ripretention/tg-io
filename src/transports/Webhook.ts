@@ -1,21 +1,21 @@
-import {Api} from "../Api";
+import { Api } from "../Api";
 import * as debug from "debug";
 import * as https from "https";
-import {UpdateHandler} from "../UpdateHandler";
-import {EventTransport, EventTransportState} from "./EventTransport";
-import {PathLike} from "fs";
-import {readFile} from "fs/promises";
-import {IUpdateCollection} from "../types/IUpdate";
+import { UpdateHandler } from "../UpdateHandler";
+import { EventTransport, EventTransportState } from "./EventTransport";
+import { PathLike } from "fs";
+import { readFile } from "fs/promises";
+import { IUpdateCollection } from "../types/IUpdate";
 
 type WebhookOptions = {
-	url: string,
-	ip?: string,
-	secret?: string,
-	maxConnections?: number,
+	url: string;
+	ip?: string;
+	secret?: string;
+	maxConnections?: number;
 	tls: {
-		key: PathLike,
-		cert: PathLike
-	}
+		key: PathLike;
+		cert: PathLike;
+	};
 };
 type SupportedPort = 443 | 80 | 88 | 8443;
 export class Webhook extends EventTransport {
@@ -25,12 +25,13 @@ export class Webhook extends EventTransport {
 		super(api);
 	}
 
-	public async start(handler: UpdateHandler, port: SupportedPort = 8443): Promise<void> {
-		if (this.state === EventTransportState.Working)
-			return;
+	public async start(
+		handler: UpdateHandler,
+		port: SupportedPort = 8443
+	): Promise<void> {
+		if (this.state === EventTransportState.Working) return;
 
-		if (!(await this.isValid()))
-			this.setupWebhook();
+		if (!(await this.isValid())) this.setupWebhook();
 
 		this.server = await this.createServer(handler);
 		this.server.listen(port);
@@ -39,8 +40,7 @@ export class Webhook extends EventTransport {
 		this.state = EventTransportState.Working;
 	}
 	public stop(): void {
-		if (this.state !== EventTransportState.Working)
-			return;
+		if (this.state !== EventTransportState.Working) return;
 
 		this.log("stopped");
 		this.revokeWebhook();
@@ -49,7 +49,10 @@ export class Webhook extends EventTransport {
 
 	private async isValid() {
 		let opts = this.options;
-		let response: Record<string, any> = await this.api.callMethod("getWebhookInfo", {});
+		let response: Record<string, any> = await this.api.callMethod(
+			"getWebhookInfo",
+			{}
+		);
 
 		return (
 			opts.url === response.url &&
@@ -62,11 +65,10 @@ export class Webhook extends EventTransport {
 		let params: Record<string, any> = {
 			url: opts.url,
 			max_connections: opts?.maxConnections ?? 40,
-			certificate: opts.tls.cert
+			certificate: opts.tls.cert,
 		};
-		if (opts.secret)
-			params.secret = opts.secret;
-		
+		if (opts.secret) params.secret = opts.secret;
+
 		this.log("configured");
 		return this.api.callMethod("setWebhook", params);
 	}
@@ -76,28 +78,33 @@ export class Webhook extends EventTransport {
 	}
 
 	private async createServer(handler: UpdateHandler) {
-		return new https.Server({
-			key: await readFile(this.options.tls.key),
-			cert: await readFile(this.options.tls.cert)
-		}, async (req) => {
-			if (this.secret && req.headers["X-Telegram-Bot-Api-Secret-Token"] !== this.secret)
-				return;
+		return new https.Server(
+			{
+				key: await readFile(this.options.tls.key),
+				cert: await readFile(this.options.tls.cert),
+			},
+			async req => {
+				if (
+					this.secret &&
+					req.headers["X-Telegram-Bot-Api-Secret-Token"] !==
+						this.secret
+				)
+					return;
 
-			let chunks = [];
-			for await (let chunk of req)
-				chunks.push(chunk);
+				let chunks = [];
+				for await (let chunk of req) chunks.push(chunk);
 
-			let body: IUpdateCollection;
-			try {
-				body = JSON.parse(Buffer.concat(chunks).toString());
-			} catch (_) {
-				this.log("failed JSON parsing");
-				return;
+				let body: IUpdateCollection;
+				try {
+					body = JSON.parse(Buffer.concat(chunks).toString());
+				} catch (_) {
+					this.log("failed JSON parsing");
+					return;
+				}
+
+				for (let upd of body.result) await handler.handle(upd);
 			}
-
-			for (let upd of body.result)
-				await handler.handle(upd);
-		});
+		);
 	}
 	private get secret() {
 		return this?.options?.secret?.slice(0, 256);

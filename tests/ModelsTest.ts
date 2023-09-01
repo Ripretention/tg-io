@@ -1,5 +1,5 @@
-import {User} from "../src/models";
-import {IUser} from "../src/types";
+import { User } from "../src/models";
+import { IUser } from "../src/types";
 
 describe("User", () => {
 	let rawUser: IUser = {
@@ -8,12 +8,12 @@ describe("User", () => {
 		is_bot: false,
 		language_code: "en",
 		last_name: "Durov",
-		username: "durov"
+		username: "durov",
 	};
 
 	test("should return username", () => {
 		let user = new User(rawUser);
-		
+
 		let result = user.appeal;
 
 		expect(result).toBe("@durov");
@@ -21,7 +21,7 @@ describe("User", () => {
 	test("should return fullname", () => {
 		rawUser.username = null;
 		let user = new User(rawUser);
-		
+
 		let result = user.appeal;
 
 		expect(result).toBe("Pavel Durov");
@@ -30,7 +30,7 @@ describe("User", () => {
 		rawUser.username = null;
 		rawUser.last_name = null;
 		let user = new User(rawUser);
-		
+
 		let result = user.appeal;
 
 		expect(result).toBe("Pavel");

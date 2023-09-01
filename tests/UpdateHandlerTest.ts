@@ -1,15 +1,15 @@
-import {CallbackQueryContext} from "../src/contexts/CallbackQueryContext";
-import {MessageContext} from "../src/contexts/MessageContext";
+import { CallbackQueryContext } from "../src/contexts/CallbackQueryContext";
+import { MessageContext } from "../src/contexts/MessageContext";
 import { IUpdateResult } from "../src/types/IUpdate";
 import { UpdateHandler } from "../src/UpdateHandler";
-let handler: UpdateHandler; 
+let handler: UpdateHandler;
 let baseUpdate: IUpdateResult = {
 	update_id: 1,
 	message: {
-		message_id: 1,	
+		message_id: 1,
 		date: null,
-		text: "/test"
-	}
+		text: "/test",
+	},
 };
 
 beforeEach(() => {
@@ -21,11 +21,9 @@ describe("onUpdate", () => {
 		let update = baseUpdate;
 		let testHandler = (_: any, next: () => void) => {
 			handledUpdateCount++;
-			if (handledUpdateCount < 4)
-				next();
+			if (handledUpdateCount < 4) next();
 		};
-		for (let i = 0; i < 10; i++)
-			handler.onUpdate("message", testHandler);
+		for (let i = 0; i < 10; i++) handler.onUpdate("message", testHandler);
 
 		await handler.handle(update);
 
@@ -36,7 +34,7 @@ describe("onUpdate", () => {
 		let update: IUpdateResult = {
 			...baseUpdate,
 			someDoppedUpdate: {},
-			newPhoto: {}
+			newPhoto: {},
 		};
 		let testHandler = (_: any, next: () => void) => {
 			handledUpdateCount++;
@@ -60,10 +58,10 @@ describe("hearCallbackQuery", () => {
 			from: {
 				id: 1,
 				is_bot: false,
-				first_name: "Durov"
+				first_name: "Durov",
 			},
-			data: "nodata"
-		}
+			data: "nodata",
+		},
 	};
 	test("should handle 7 updates", async () => {
 		let handleCounter = 0;
@@ -90,9 +88,11 @@ describe("hearCallbackQuery", () => {
 			message_id: 21,
 			date: 1,
 			from: query.from,
-			text: "heyoo!"
+			text: "heyoo!",
 		};
-		handler.hearCallbackQuery(/somedatahere(.+)/i, (evt) => { ctx = evt; });
+		handler.hearCallbackQuery(/somedatahere(.+)/i, evt => {
+			ctx = evt;
+		});
 
 		await handler.handle(update);
 
@@ -107,30 +107,36 @@ describe("hearCommand", () => {
 	let update = baseUpdate;
 	test("should match command by text", async () => {
 		let handled = false;
-		handler.hearCommand("/test", () => { handled = true; });
+		handler.hearCommand("/test", () => {
+			handled = true;
+		});
 
 		await handler.handle(update);
-		
+
 		expect(handled).toBe(true);
 	});
 	test("should match command by basic text array", async () => {
 		let handledCommads = 0;
-		handler.hearCommand(["/test", "/test2"], () => { handledCommads++; });
+		handler.hearCommand(["/test", "/test2"], () => {
+			handledCommads++;
+		});
 
 		await handler.handle(update);
 		update.message.text = "/test2";
 		await handler.handle(update);
-		
+
 		expect(handledCommads).toBe(2);
 	});
 	test("should match command by regex", async () => {
 		let handledCommads = 0;
-		handler.hearCommand(/^\/test/i, () => { handledCommads++; });
+		handler.hearCommand(/^\/test/i, () => {
+			handledCommads++;
+		});
 
 		await handler.handle(update);
 		update.message.text = "/test2";
 		await handler.handle(update);
-		
+
 		expect(handledCommads).toBe(2);
 	});
 });
@@ -139,7 +145,7 @@ describe("use", () => {
 	let update = baseUpdate;
 
 	test("should handle the queue orderly", async () => {
-		let queue: string[] = [];	
+		let queue: string[] = [];
 		handler.hearCommand(/^\/test/i, (_, next) => {
 			queue.push("hearCommand");
 			next();
@@ -166,8 +172,8 @@ describe("onMessageEvent", () => {
 			message_id: 2,
 			date: null,
 			text: "/some command",
-			photo: []
-		}
+			photo: [],
+		},
 	};
 
 	test("should match update", async () => {
@@ -211,13 +217,17 @@ describe("setContext", () => {
 
 		await handler.handle(update);
 
-		expect(testMessagePayload).toBe(`${update.message.message_id}: has test message no data`);
+		expect(testMessagePayload).toBe(
+			`${update.message.message_id}: has test message no data`
+		);
 	});
 	class TestMessage extends MessageContext {
 		public specialTestPayload: string;
 		public hasTestCommand = () => /^\/test/i.test(this.text);
 		public toString() {
-			return `${this.id}: ${this.hasTestCommand ? "has test message" : ""} ${this.specialTestPayload ?? "no data"}`;
+			return `${this.id}: ${
+				this.hasTestCommand ? "has test message" : ""
+			} ${this.specialTestPayload ?? "no data"}`;
 		}
 	}
 
@@ -231,13 +241,15 @@ describe("setContext", () => {
 				from: {
 					id: 1,
 					is_bot: false,
-					first_name: "Durov"
+					first_name: "Durov",
 				},
-				data: "nodata"
-			}
+				data: "nodata",
+			},
 		};
 		handler.setContext("callback_query", TestCallbackQuery);
-		handler.hearCallbackQuery<TestCallbackQuery>("nodata", evt => { ctx = evt; });
+		handler.hearCallbackQuery<TestCallbackQuery>("nodata", evt => {
+			ctx = evt;
+		});
 
 		await handler.handle(update);
 

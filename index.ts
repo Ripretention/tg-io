@@ -3,10 +3,10 @@ import { EventTransport, Polling } from "./src/transports";
 import { UpdateHandler } from "./src/UpdateHandler";
 import * as Keyboard from "./src/models/keyboard";
 import { BotCommandList } from "./src/commands/BotCommandList";
-import { BotCommandUploader} from './src/commands/BotCommandUploader';
+import { BotCommandUploader } from "./src/commands/BotCommandUploader";
 
 export class Tg {
-	constructor(private readonly token: string) { }
+	constructor(private readonly token: string) {}
 
 	public eventTransport: EventTransport;
 	public readonly commands = new BotCommandList();
@@ -30,7 +30,7 @@ export {
 	Polling as TgPolling,
 	UpdateHandler as TgUpdateHandler,
 	Keyboard as TgKeyboard,
-	BotCommandList as TgBotCommandList
+	BotCommandList as TgBotCommandList,
 };
 export {
 	Use as TgUse,
@@ -38,7 +38,7 @@ export {
 	Update as TgUpdate,
 	Command as TgCommand,
 	CallbackQuery as TgCallbackQuery,
-} from "./src/UpdateHandlerDecorators";
+} from "./src/decorators/UpdateHandlerDecorators";
 export * as TgEntity from "./src/types";
 export * as TgModel from "./src/models";
 export * as TgContext from "./src/contexts";

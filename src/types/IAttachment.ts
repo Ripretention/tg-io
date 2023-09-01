@@ -44,4 +44,3 @@ export interface IStickerAttachment extends IPhotoAttachment {
 	set_name?: string;
 	emoji?: string;
 }
-

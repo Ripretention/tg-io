@@ -1,12 +1,12 @@
-import {Button, BaseButton, InlineButton} from "./Button";
-import {IKeyboardButton} from "../../types/IKeyboard";
-import {IMessageSendParams} from "../../types/params/ISendParams";
+import { Button, BaseButton, InlineButton } from "./Button";
+import { IKeyboardButton } from "../../types/IKeyboard";
+import { IMessageSendParams } from "../../types/params/ISendParams";
 
 export abstract class BaseKeyboardBuilder<TButton extends BaseButton> {
 	protected buttons: TButton[][] = [];
 
 	public add(btn: TButton) {
-		let lastRow = this.buttons.length-1;
+		let lastRow = this.buttons.length - 1;
 		if (!this.buttons[lastRow] || this.buttons[lastRow].length >= 8) {
 			this.wrap();
 			lastRow++;
@@ -33,8 +33,10 @@ export class InlineKeyboardBuilder extends BaseKeyboardBuilder<InlineButton> {
 	public build() {
 		return {
 			reply_markup: {
-				inline_keyboard: this.buttons.map(row => row.map(btn => btn.toObject()))
-			}
+				inline_keyboard: this.buttons.map(row =>
+					row.map(btn => btn.toObject())
+				),
+			},
 		};
 	}
 }
@@ -63,16 +65,18 @@ export class KeyboardBuilder extends BaseKeyboardBuilder<Button> {
 	public build() {
 		return {
 			reply_markup: {
-				keyboard: this.buttons.map(row => row.map(btn => btn.toObject())),
-				...this.additionalOptions
-			}
+				keyboard: this.buttons.map(row =>
+					row.map(btn => btn.toObject())
+				),
+				...this.additionalOptions,
+			},
 		};
 	}
 
 	public static remove(remove = true, selective = false) {
 		return JSON.stringify({
 			remove_keyboard: remove,
-			selective
+			selective,
 		});
 	}
 }

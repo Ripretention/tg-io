@@ -17,6 +17,7 @@
     "project": "tsconfig.json"
   },
   "rules": {
+    "no-mixed-spaces-and-tabs": "off",
     "no-irregular-whitespace": ["error", { "skipTemplates": true }],
     "no-empty-function": [
       "error",

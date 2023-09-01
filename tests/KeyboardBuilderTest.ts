@@ -1,5 +1,10 @@
-import {Button, InlineButton, InlineKeyboardBuilder, KeyboardBuilder} from "../src/models/keyboard";
-import {IKeyboardInlineButton, IKeyboardButton} from "../src/types/IKeyboard";
+import {
+	Button,
+	InlineButton,
+	InlineKeyboardBuilder,
+	KeyboardBuilder,
+} from "../src/models/keyboard";
+import { IKeyboardInlineButton, IKeyboardButton } from "../src/types/IKeyboard";
 
 describe("Inline Keyboard Builder", () => {
 	const keyboard = new InlineKeyboardBuilder();
@@ -8,11 +13,20 @@ describe("Inline Keyboard Builder", () => {
 	test("should build keyboard with every type of inline buttons", () => {
 		let cbBtn = new InlineButton({ text: "hello", payload: "some_info" });
 		keyboard.add(cbBtn);
-		let urlBtn = new InlineButton({ text: "click me", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" });
+		let urlBtn = new InlineButton({
+			text: "click me",
+			url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+		});
 		keyboard.add(urlBtn);
-		let chatSelectBtn = new InlineButton({ text: "select chat", switchQuery: "help" });
+		let chatSelectBtn = new InlineButton({
+			text: "select chat",
+			switchQuery: "help",
+		});
 		keyboard.add(chatSelectBtn);
-		let currentChatQueryBtn = new InlineButton({ text: "don't click me", switchCurrentChatQuery: "what did i tell u?" });
+		let currentChatQueryBtn = new InlineButton({
+			text: "don't click me",
+			switchCurrentChatQuery: "what did i tell u?",
+		});
 		keyboard.add(currentChatQueryBtn);
 
 		let { reply_markup: result } = keyboard.build();
@@ -22,10 +36,17 @@ describe("Inline Keyboard Builder", () => {
 				[
 					{ text: cbBtn.text, callback_data: cbBtn.payload },
 					{ text: urlBtn.text, url: urlBtn.url },
-					{ text: chatSelectBtn.text, switch_inline_query: chatSelectBtn.switchQuery },
-					{ text: currentChatQueryBtn.text, switch_inline_query_current_chat: currentChatQueryBtn.switchCurrentChatQuery }
-				] as Partial<IKeyboardInlineButton>[]
-			]
+					{
+						text: chatSelectBtn.text,
+						switch_inline_query: chatSelectBtn.switchQuery,
+					},
+					{
+						text: currentChatQueryBtn.text,
+						switch_inline_query_current_chat:
+							currentChatQueryBtn.switchCurrentChatQuery,
+					},
+				] as Partial<IKeyboardInlineButton>[],
+			],
 		});
 	});
 	test("should automatically wrap the keyabord after reaching more than eight buttons", () => {
@@ -45,9 +66,9 @@ describe("Keyboard Builder", () => {
 	test("should build keyboard with every type of buttons", () => {
 		let textBtn = new Button("text");
 		let contactBtn = new Button("text", "contact");
-		let locationBtn = new Button("text", "location"); 
-		let pollQuizBtn = new Button("text", "poll_quiz"); 
-		let pollRegularBtn = new Button("text", "poll_regular"); 
+		let locationBtn = new Button("text", "location");
+		let pollQuizBtn = new Button("text", "poll_quiz");
+		let pollRegularBtn = new Button("text", "poll_regular");
 
 		let { reply_markup: result } = keyboard
 			.add(textBtn)
@@ -64,9 +85,12 @@ describe("Keyboard Builder", () => {
 					{ request_contact: true },
 					{ request_location: true },
 					{ request_poll: { type: "quiz" } },
-					{ request_poll: { type: "regular" } }
-				].map(o => ({ text: "text", ...o })) as Partial<IKeyboardButton>[]
-			]
+					{ request_poll: { type: "regular" } },
+				].map(o => ({
+					text: "text",
+					...o,
+				})) as Partial<IKeyboardButton>[],
+			],
 		});
 	});
 	test("should build keyboard with complex options", () => {
@@ -83,7 +107,7 @@ describe("Keyboard Builder", () => {
 			one_time_keyboard: true,
 			resize_keyboard: true,
 			selective: true,
-			input_field_placeholder: "hello"
+			input_field_placeholder: "hello",
 		});
 	});
 });

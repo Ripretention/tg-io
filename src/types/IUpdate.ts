@@ -1,5 +1,5 @@
-import {IMessage} from "./IMessage";
-import {ICallbackQuery} from "./ICallbackQuery";
+import { IMessage } from "./IMessage";
+import { ICallbackQuery } from "./ICallbackQuery";
 
 export interface IApiResult<T> {
 	ok: boolean;

@@ -1,5 +1,5 @@
-import {IMessage} from "./IMessage";
-import {IUser} from "./IUser";
+import { IMessage } from "./IMessage";
+import { IUser } from "./IUser";
 
 export class ICallbackQuery {
 	public id: string;

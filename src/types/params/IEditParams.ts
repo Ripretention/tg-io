@@ -1,5 +1,5 @@
-import {IAttachment} from "../IAttachment";
-import {IMessageEntity} from "../IMessageEntity";
+import { IAttachment } from "../IAttachment";
+import { IMessageEntity } from "../IMessageEntity";
 
 interface IBaseEditParams {
 	chat_id: string | number;

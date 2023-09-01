@@ -17,6 +17,13 @@
   "files": [
     "lib/*"
   ],
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "require": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    }
+  },
   "homepage": "https://github.com/Ripretention/tg-io#readme",
   "bugs": "https://github.com/Ripretention/tg-io/issues",
   "repository": {

@@ -43,12 +43,12 @@ tg.updates.hearCommand(/^\/i wanna some buttons/i, async ctx => {
 tg.updates.hearCommand(/^\/i wanna some INLINE buttons/i, async ctx => {
   let keyboard = tg.createInlineKeyboard();
   keyboard
-    .create({ text: "im a cb?", payload: "yes." })
-    .create({
+    .createButton({ text: "im a cb?", payload: "yes." })
+    .createButton({
       text: "or maybe.. a link??",
       url: "https://www.youtube.com/watch?v=oHg5SJYRHA0",
     })
-    .create({ text: "yep!", switchCurrentChatQuery: "nope..." });
+    .createButton({ text: "yep!", switchCurrentChatQuery: "nope..." });
 
   return await ctx.replyMessage({
     text: "ive some buttons :) ",
