@@ -1,10 +1,12 @@
 import { IAttachment } from "../IAttachment";
+import { IKeyboard, IKeyboardInline } from "../IKeyboard";
 import { IMessageEntity } from "../IMessageEntity";
 
 interface IBaseEditParams {
 	chat_id: string | number;
 	message_id?: number;
 	inline_message_id?: number;
+	reply_markup?: IKeyboardInline | IKeyboard;
 }
 
 export interface ITextEditParams extends IBaseEditParams {
