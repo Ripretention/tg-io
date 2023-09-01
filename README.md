@@ -36,7 +36,11 @@ import { TgKeyboard } from "tg-io";
 tg.updates.hearCommand(/^\/i wanna some buttons/i, async ctx => {
   let keyboard = tg.createKeyboard();
   let reqBtn = new TgKeyboard.Button("and me too..", "location");
-  keyboard.create("click me NOW!").add(reqBtn).setOneTime().setSelective("YES");
+  keyboard
+    .createButton("click me NOW!")
+    .add(reqBtn)
+    .setOneTime()
+    .setSelective("YES");
 
   return await ctx.replyMessage(keyboard.build());
 });

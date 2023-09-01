@@ -1,5 +1,5 @@
-import { IBotCommand, IBotCommandScope } from "../types/IBotCommand";
-import { filterObjectByKey } from "../Utils";
+import { IBotCommandScope } from "../types/IBotCommand";
+import { filterObjectByKey } from "../utils";
 import { BotCommandList } from "./BotCommandList";
 
 type CommandParameter<T> = ((arg: T) => string) | string;

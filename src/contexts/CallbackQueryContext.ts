@@ -1,7 +1,7 @@
 import { Api } from "../Api";
 import { CallbackQuery } from "../models/CallbackQuery";
 import { ICallbackQuery } from "../types/ICallbackQuery";
-import { filterObjectByKey } from "../Utils";
+import { filterObjectByKey } from "../utils";
 import { MessageContext } from "./MessageContext";
 
 export class CallbackQueryContext extends CallbackQuery {

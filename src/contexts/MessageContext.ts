@@ -1,6 +1,6 @@
 import { Api } from "../Api";
 import { ReadStream } from "fs";
-import { capitalize } from "../Utils";
+import { capitalize } from "../utils";
 import { Message } from "../models/Message";
 import { ChatContext } from "./ChatContext";
 import { IMessage } from "../types/IMessage";

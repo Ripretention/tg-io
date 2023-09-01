@@ -1,5 +1,5 @@
 import { IBotCommand, IBotCommandScope } from "../types/IBotCommand";
-import { groupByKey } from "../Utils";
+import { groupByKey } from "../utils";
 import { CommandInfoDecoratorMetadata } from "./BotCommandDecorators";
 
 export class BotCommandList {
