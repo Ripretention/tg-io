@@ -27,7 +27,7 @@ type AttachmentSource<TAttachment extends IAttachment> =
 	| Attachment<TAttachment>;
 type SendMessageParams =
 	| string
-	| ({ text: string } & Partial<Params.IBaseSendParams>);
+	| ({ text: string } & Partial<Params.IMessageSendParams>);
 
 export class MessageContext extends Message {
 	public match: string[] = [];
@@ -57,7 +57,9 @@ export class MessageContext extends Message {
 
 	public ask(options?: ConversationOptions) {
 		if (!this.conversation) {
-			throw new Error("First you should implement conversations before start polling");
+			throw new Error(
+				"First you should implement conversations before start polling"
+			);
 		}
 
 		return this.conversation.waitAnswer(this, options);

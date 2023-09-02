@@ -7,23 +7,37 @@ export class Polling extends EventTransport {
 	private log = debug("tg-io:polling");
 
 	public async start(handler: UpdateHandler) {
-		if (this.state === EventTransportState.Working) return;
+		if (this.state === EventTransportState.Working) {
+			return;
+		}
 
 		this.log("started");
 
-		let offset = null;
+		let offset: number | undefined;
 		this.state = EventTransportState.Working;
-		while (this.state === EventTransportState.Working) {
-			let updates = (await this.api.callMethod(
-				"getUpdates",
-				offset === null ? {} : { offset }
-			)) as IUpdateCollection;
+		return new Promise<void>((resolve, reject) => {
+			while (this.state === EventTransportState.Working) {
+				this.handleUpdates(handler, reject, offset).catch(reject);
+			}
+			resolve();
+		});
+	}
+	private async handleUpdates(
+		handler: UpdateHandler,
+		onerror: (err: unknown) => void,
+		offset?: number
+	) {
+		let updates = (await this.api.callMethod(
+			"getUpdates",
+			offset === undefined ? {} : { offset }
+		)) as IUpdateCollection;
 
-			await Promise.all(updates.result.map(async update => {
-				offset = update.update_id + 1;
+		Promise.all(
+			updates.result.map(async update => {
 				return await handler.handle(update);
-			}));
-		}
+			})
+		).catch(onerror);
+		return offset + updates.result.length;
 	}
 
 	public stop() {

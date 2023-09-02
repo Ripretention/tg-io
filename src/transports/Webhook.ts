@@ -33,18 +33,25 @@ export class Webhook extends EventTransport {
 		handler: UpdateHandler,
 		port: SupportedPort = 8443
 	): Promise<void> {
-		if (this.state === EventTransportState.Working) return;
+		if (this.state === EventTransportState.Working) {
+			return;
+		}
 
 		let isInvalid = !(await this.isValid());
 		if (isInvalid) {
 			await this.setupWebhook();
 		}
 
-		this.server = await this.createServer(handler);
-		this.server.listen(port);
+		let key = await readFile(this.options.tls.key);
+		let cert = await readFile(this.options.tls.cert);
+		return new Promise((resolve, reject) => {
+			this.server = this.createServer(key, cert, handler, reject);
+			this.server.listen(port);
+			this.server.once("close", resolve);
 
-		this.log(`started on ${port} port`);
-		this.state = EventTransportState.Working;
+			this.log(`started on ${port} port`);
+			this.state = EventTransportState.Working;
+		});
 	}
 	public async stop() {
 		if (this.state !== EventTransportState.Working) return;
@@ -84,20 +91,26 @@ export class Webhook extends EventTransport {
 		return this.api.callMethod("deleteWebhook", {});
 	}
 
-	private async createServer(handler: UpdateHandler) {
+	private createServer(
+		key: Buffer,
+		cert: Buffer,
+		handler: UpdateHandler,
+		onerror: (err: unknown) => void
+	) {
 		return new https.Server(
 			{
-				key: await readFile(this.options.tls.key),
-				cert: await readFile(this.options.tls.cert),
+				key,
+				cert,
 			},
 			req => {
-				this.handleServerRequest(req, handler).catch(console.log);
+				this.handleServerRequest(req, handler, onerror).catch(onerror);
 			}
 		);
 	}
 	private async handleServerRequest(
 		req: IncomingMessage,
-		handler: UpdateHandler
+		handler: UpdateHandler,
+		onerror: (err: unknown) => void
 	) {
 		if (
 			this.secret &&
@@ -119,7 +132,7 @@ export class Webhook extends EventTransport {
 			return;
 		}
 
-		await Promise.all(body.result.map(handler.handle));
+		Promise.all(body.result.map(handler.handle)).catch(onerror);
 	}
 	private get secret() {
 		return this?.options?.secret?.slice(0, 256);

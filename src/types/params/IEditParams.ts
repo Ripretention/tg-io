@@ -12,6 +12,7 @@ export interface IBaseEditParams {
 export interface ITextEditParams extends IBaseEditParams {
 	text: string;
 	parse_mode?: string;
+	disable_web_page_preview: boolean;
 	entities?: IMessageEntity[];
 }
 export interface ICaptionEditParams extends IBaseEditParams {
