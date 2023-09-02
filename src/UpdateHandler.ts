@@ -5,6 +5,7 @@ import { Middleware, MiddlewareToken } from "./utils/Middleware";
 import { IMessage } from "./types/IMessage";
 import { IUpdateResult } from "./types/IUpdate";
 import { UpdateHandlerDecoratorMetadata } from "./decorators/UpdateHandlerDecorators";
+import { Conversation } from "./converstations/Conversation";
 
 type EventContexts = {
 	message: MessageContext;
@@ -27,8 +28,7 @@ export class UpdateHandler {
 		message: MessageContext,
 		callback_query: CallbackQueryContext,
 	};
-	private middlewareToken = new MiddlewareToken();
-	private baseHandler = new Middleware<IUpdateResult>(this.middlewareToken);
+	private baseHandler = new Middleware<IUpdateResult>();
 	private updates: { [kind: string]: Middleware<any> } = {};
 
 	private errorListener: UpdateHandlerErrorListener = err => {
@@ -39,20 +39,31 @@ export class UpdateHandler {
 	}
 
 	public async handle(update: IUpdateResult) {
-		this.middlewareToken.reset();
-
 		try {
-			await this.baseHandler.handle(update);
-			for (let updateMiddleware of Object.keys(this.updates)
-				.filter(key => Object.keys(update).includes(key))
-				.map(key => this.updates[key])) {
-				await updateMiddleware.handle(update);
-			}
+			await this.handleUpdate(update);
 		} catch (err) {
 			await this.errorListener(err);
 		}
 	}
+	private async handleUpdate(update: IUpdateResult) {
+		let token = new MiddlewareToken();
 
+		await this.baseHandler.handle(update, token);
+		for (let updateMiddleware of Object.keys(this.updates)
+			.filter(key => Object.keys(update).includes(key))
+			.map(key => this.updates[key])) {
+			await updateMiddleware.handle(update, token);
+		}
+	}
+
+	private conversation: Conversation;
+	public implementConversations() {
+		this.conversation = new Conversation();
+		this.onUpdate(
+			"message",
+			this.conversation.handle.bind(this.conversation)
+		);
+	}
 	public implementDecorators(...decoratedHandlers: Record<string, any>[]) {
 		for (let handler of decoratedHandlers) {
 			let metadata: UpdateHandlerDecoratorMetadata =
@@ -77,24 +88,29 @@ export class UpdateHandler {
 		handler: UpdateHandlerFn<TUpdate>,
 		skipConvertingToContext = false
 	) {
-		if (!this.updates.hasOwnProperty(updateKind)) {
-			this.updates[updateKind] = new Middleware(this.middlewareToken);
-			this.updates[updateKind].add((upd, next) => {
-				if (!upd.hasOwnProperty(updateKind)) return next();
-
-				let evt =
-					skipConvertingToContext ||
-					!this.contextCtorStorage.hasOwnProperty(updateKind)
-						? upd[updateKind]
-						: new this.contextCtorStorage[updateKind](
-								this.api,
-								upd[updateKind]
-						  );
-
-				next(evt);
-			});
+		if (this.updates.hasOwnProperty(updateKind)) {
+			this.updates[updateKind].add(handler);
+			return;
 		}
 
+		this.updates[updateKind] = new Middleware();
+		this.updates[updateKind].add((upd, next) => {
+			if (!upd.hasOwnProperty(updateKind)) {
+				return next();
+			}
+
+			let evt =
+				skipConvertingToContext ||
+				!this.contextCtorStorage.hasOwnProperty(updateKind)
+					? upd[updateKind]
+					: new this.contextCtorStorage[updateKind](
+							this.api,
+							upd[updateKind],
+							this.conversation
+					  );
+
+			next(evt);
+		});
 		this.updates[updateKind].add(handler);
 	}
 	public hearCallbackQuery<TContext extends CallbackQueryContext>(

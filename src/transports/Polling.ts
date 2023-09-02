@@ -19,10 +19,10 @@ export class Polling extends EventTransport {
 				offset === null ? {} : { offset }
 			)) as IUpdateCollection;
 
-			for (let update of updates.result) {
+			await Promise.all(updates.result.map(async update => {
 				offset = update.update_id + 1;
-				await handler.handle(update);
-			}
+				return await handler.handle(update);
+			}));
 		}
 	}
 

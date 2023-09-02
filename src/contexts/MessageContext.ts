@@ -17,6 +17,8 @@ import {
 	IKeyboardInline,
 } from "../types";
 import { AttachmentType, IAttachmentSendParams } from "../types/params";
+import { Conversation } from "../converstations/Conversation";
+import { ConversationOptions } from "../converstations";
 
 type AttachmentSource<TAttachment extends IAttachment> =
 	| string
@@ -32,7 +34,8 @@ export class MessageContext extends Message {
 	public chat = new ChatContext(this.api, this.get("chat"));
 	constructor(
 		private readonly api: Api,
-		source: IMessage
+		source: IMessage,
+		private readonly conversation?: Conversation
 	) {
 		super(source);
 	}
@@ -50,6 +53,14 @@ export class MessageContext extends Message {
 	}
 	public unpinAll() {
 		return this.execute<boolean>("unpinAllChatMessages", {});
+	}
+
+	public ask(options?: ConversationOptions) {
+		if (!this.conversation) {
+			throw new Error("First you should implement conversations before start polling");
+		}
+
+		return this.conversation.waitAnswer(this, options);
 	}
 
 	public async editText(

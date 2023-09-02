@@ -1,13 +1,13 @@
+import { randomUUID } from "crypto";
+
 export type MiddlewareFn<T> = (arg: T, next: (nextArg?: T) => void) => any;
+export interface MiddlewareSegment<T> {
+	id: string;
+	fn: MiddlewareFn<T>;
+}
 
 export class MiddlewareToken {
 	private passingState = true;
-	public reset() {
-		return this.next();
-	}
-	public get() {
-		return this.passingState;
-	}
 	public next() {
 		this.passingState = true;
 	}
@@ -20,24 +20,38 @@ export class MiddlewareToken {
 }
 
 export class Middleware<T> {
-	private handlers: MiddlewareFn<T>[] = [];
-	constructor(private readonly token: MiddlewareToken) {}
+	private segments: MiddlewareSegment<T>[] = [];
 
-	public async handle(arg: T) {
-		let value = arg;
-		let next = (a?: T) => {
-			if (a) {
-				value = a;
+	public async handle(arg: T, token: MiddlewareToken) {
+		let accValue = arg;
+		let next = (value?: T) => {
+			if (value) {
+				accValue = value;
 			}
-			return this.token.next();
+
+			return token.next();
 		};
 
-		for (let handler of this.handlers) {
-			await this.token.complete(() => handler(value, next));
+		for (let segment of this.segments) {
+			await token.complete(() => segment.fn(accValue, next));
 		}
 	}
-	public add(handler: MiddlewareFn<T>) {
-		this.handlers.push(handler);
-		return this;
+	public add(fn: MiddlewareFn<T>) {
+		let segment: MiddlewareSegment<T> = {
+			id: randomUUID(),
+			fn,
+		};
+
+		this.segments.push(segment);
+		return segment;
+	}
+	public remove(segment: MiddlewareSegment<T>) {
+		let index = this.segments.findIndex(s => s.id === segment.id);
+		if (index === -1) {
+			return false;
+		}
+
+		this.segments.splice(index, 1);
+		return true;
 	}
 }

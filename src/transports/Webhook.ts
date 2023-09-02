@@ -90,10 +90,15 @@ export class Webhook extends EventTransport {
 				key: await readFile(this.options.tls.key),
 				cert: await readFile(this.options.tls.cert),
 			},
-			req => this.handleServerRequest(req, handler).catch(console.log)
+			req => {
+				this.handleServerRequest(req, handler).catch(console.log);
+			}
 		);
 	}
-	private async handleServerRequest(req: IncomingMessage, handler: UpdateHandler) {
+	private async handleServerRequest(
+		req: IncomingMessage,
+		handler: UpdateHandler
+	) {
 		if (
 			this.secret &&
 			req.headers["X-Telegram-Bot-Api-Secret-Token"] !== this.secret
@@ -114,9 +119,7 @@ export class Webhook extends EventTransport {
 			return;
 		}
 
-		for (let upd of body.result) {
-			await handler.handle(upd);
-		}
+		await Promise.all(body.result.map(handler.handle));
 	}
 	private get secret() {
 		return this?.options?.secret?.slice(0, 256);
