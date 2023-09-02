@@ -29,7 +29,7 @@ export class Polling extends EventTransport {
 				offset === undefined ? {} : { offset }
 			)) as IUpdateCollection;
 
-			offset += updates.result.length;
+			offset = (offset ?? 0) + updates.result.length;
 			Promise.all(
 				updates.result.map(async update => {
 					return await handler.handle(update);
