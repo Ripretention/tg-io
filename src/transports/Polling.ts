@@ -12,32 +12,31 @@ export class Polling extends EventTransport {
 		}
 
 		this.log("started");
-
-		let offset: number | undefined;
-		this.state = EventTransportState.Working;
 		return new Promise<void>((resolve, reject) => {
-			while (this.state === EventTransportState.Working) {
-				this.handleUpdates(handler, reject, offset).catch(reject);
-			}
-			resolve();
+			this.handleUpdates(handler, resolve, reject).catch(reject);
 		});
 	}
 	private async handleUpdates(
 		handler: UpdateHandler,
-		onerror: (err: unknown) => void,
-		offset?: number
+		onstop: () => void,
+		onerror: (err: unknown) => void
 	) {
-		let updates = (await this.api.callMethod(
-			"getUpdates",
-			offset === undefined ? {} : { offset }
-		)) as IUpdateCollection;
+		let offset: number | undefined;
+		this.state = EventTransportState.Working;
+		while (this.state === EventTransportState.Working) {
+			let updates = (await this.api.callMethod(
+				"getUpdates",
+				offset === undefined ? {} : { offset }
+			)) as IUpdateCollection;
 
-		Promise.all(
-			updates.result.map(async update => {
-				return await handler.handle(update);
-			})
-		).catch(onerror);
-		return offset + updates.result.length;
+			offset += updates.result.length;
+			Promise.all(
+				updates.result.map(async update => {
+					return await handler.handle(update);
+				})
+			).catch(onerror);
+		}
+		onstop();
 	}
 
 	public stop() {
