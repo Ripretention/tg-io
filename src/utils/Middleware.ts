@@ -8,6 +8,9 @@ export interface MiddlewareSegment<T> {
 
 export class MiddlewareToken {
 	private passingState = true;
+	public getState() {
+		return this.passingState;
+	}
 	public next() {
 		this.passingState = true;
 	}

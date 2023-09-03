@@ -16,6 +16,9 @@ export class Conversation {
 	public async handle(ctx: MessageContext, next: () => void) {
 		let token = new MiddlewareToken();
 		await this.middleware.handle({ ctx, ctxNext: () => next() }, token);
+		if (token.getState()) {
+			return next();
+		}
 	}
 	public waitAnswer(
 		ctx: MessageContext,
@@ -30,7 +33,7 @@ export class Conversation {
 
 					let match: string[] =
 						options?.condition instanceof RegExp
-							? ctx.text.match(options.condition)
+							? ctx.text?.match(options.condition) ?? []
 							: [];
 					if (
 						options.condition &&
