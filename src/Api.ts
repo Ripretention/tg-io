@@ -1,6 +1,5 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
+import { errors, Client, Dispatcher, FormData } from "undici";
 import * as debug from "debug";
-import * as FormData from "form-data";
 import { ReadStream } from "fs";
 import { IApiResult, IUpdateFailed } from "./types/IUpdate";
 
@@ -10,26 +9,39 @@ export class ApiError extends Error {
 	public params: string;
 }
 
+export type SupportedParamsBody = Record<string, unknown> | FormData;
+
 export class Api {
 	private readonly log = debug("tg-io:api");
-	private readonly baseUrl = "https://api.telegram.org/bot";
-	constructor(private readonly token: string) {}
+	private readonly baseUrl = `https://api.telegram.org`;
+	public clientOptions: Client.Options = { keepAliveTimeout: 6e3 };
+	private readonly client = new Client(this.baseUrl);
+
+	constructor(private readonly token: string) {
+		this.client.on("connect", () =>
+			this.log("keep-alive connection created")
+		);
+		this.client.on("disconnect", () =>
+			this.log("keep-alive connection closed")
+		);
+	}
 
 	/**
 	 * Call method with params as a formdata
 	 */
-	public async upload<TResult>(
-		method: string,
-		params: Record<string, any> | FormData
-	) {
+	public async upload<TResult>(method: string, params: SupportedParamsBody) {
 		if (!(params instanceof FormData)) {
 			let formdata = new FormData();
 			for (let [key, value] of Object.entries(params)) {
 				let filename: string = null;
-				if (Buffer.isBuffer(value)) filename = "file.data";
-				else if (ReadStream.isReadable(value))
-					filename =
-						(value as ReadStream)?.path?.toString() ?? "file.data";
+				if (Buffer.isBuffer(value)) {
+					filename = "file.data";
+				} else if (
+					value instanceof ReadStream &&
+					ReadStream.isReadable(value)
+				) {
+					filename = value.path?.toString() ?? "file.data";
+				}
 				formdata.append(key, value, filename);
 			}
 			params = formdata;
@@ -37,33 +49,62 @@ export class Api {
 
 		return this.callMethod<TResult>(method, params);
 	}
+
 	public async callMethod<TResult>(
 		method: string,
-		params: Record<string, any>
-	): Promise<IApiResult<TResult>> {
-		let response: AxiosResponse<any, any>;
+		params: SupportedParamsBody
+	) {
+		let response: Dispatcher.ResponseData;
 		try {
-			response = await axios.post(
-				`${this.baseUrl}${this.token}/${method}`,
-				params
-			);
-		} catch (reqError) {
-			if (reqError instanceof AxiosError) {
-				let errorData = reqError?.response?.data as IUpdateFailed;
-				if (errorData == null) throw reqError;
-
-				let error = new ApiError(errorData.description);
-				error.code = errorData.error_code;
-				error.method = method;
-				error.params = JSON.stringify(params);
-				throw error;
-			}
-
-			throw reqError;
+			response = await this.client.request({
+				method: "POST",
+				path: `/bot${this.token}/${method}`,
+				...this.parseParams(params),
+				throwOnError: true,
+			});
+		} catch (err) {
+			this.handleTelegramApiError(err, method, JSON.stringify(params));
 		} finally {
 			this.log(`${method} ${response ? "OK" : "ERROR"}`);
 		}
 
-		return response.data;
+		return (await response.body.json()) as IApiResult<TResult>;
+	}
+	private parseParams(params: SupportedParamsBody) {
+		if (params instanceof FormData) {
+			return { body: params };
+		}
+		return { body: JSON.stringify(params) };
+	}
+	private handleTelegramApiError(
+		err: unknown,
+		method: string,
+		params: string
+	) {
+		if (!(err instanceof errors.ResponseStatusCodeError)) {
+			throw err;
+		}
+
+		let body: undefined | Record<string, any> = undefined;
+		if (typeof err.body === "string") {
+			try {
+				body = JSON.parse(err.body);
+			} catch (_) {
+				body = undefined;
+			}
+		} else {
+			body = err.body;
+		}
+		if (!body) {
+			throw err;
+		}
+
+		let errorData = body as IUpdateFailed;
+		let error = new ApiError(errorData.description);
+		error.code = errorData.error_code;
+		error.method = method;
+		error.params = params;
+
+		throw error;
 	}
 }
