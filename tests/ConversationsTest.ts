@@ -1,5 +1,3 @@
-import { CallbackQueryContext } from "../src/contexts/CallbackQueryContext";
-import { MessageContext } from "../src/contexts/MessageContext";
 import { IUpdateResult } from "../src/types/IUpdate";
 import { UpdateHandler } from "../src/UpdateHandler";
 
@@ -51,9 +49,9 @@ test("should provide correct context after waiting", async () => {
 test("should provide correctly parse values after waiting", async () => {
 	handler.hearCommand("/test", async ctx => {
 		let answer = await ctx.ask({ condition: /(123)/ });
-		expect(answer.toString()).toBe("123");
-		expect(answer.toNumber()).toBe(123);
-		expect(answer.match[1]).toBe(123);
+		expect(answer.asText).toBe("123");
+		expect(answer.asNumber).toBe(123);
+		expect(answer.asMatch[1]).toBe(123);
 	});
 
 	handler.implementConversations();
@@ -65,7 +63,7 @@ test("should provide correctly parse values after waiting", async () => {
 test("should respect conditions", async () => {
 	handler.hearCommand("/test", async ctx => {
 		let answer = await ctx.ask({ condition: /321/ });
-		expect(answer.toNumber()).toBe(321);
+		expect(answer.asNumber).toBe(321);
 		answer = await ctx.ask({ condition: "okay" });
 		expect(answer.toString()).toBe("okay");
 		answer = await ctx.ask({ condition: ["fine"] });

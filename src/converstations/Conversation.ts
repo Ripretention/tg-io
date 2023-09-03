@@ -17,8 +17,7 @@ export class Conversation {
 		return new Promise(resolve => {
 			let segment = this.middleware.add(async (upd, next) => {
 				if (ctx.chat.id !== upd.chat.id) {
-					next();
-					return;
+					return next();
 				}
 
 				let match: string[] =
@@ -30,13 +29,13 @@ export class Conversation {
 					!checkCondition(upd, options.condition)
 				) {
 					if (options?.conditionFallback) {
-						await options.conditionFallback(ctx);
+						await options.conditionFallback(upd);
 					}
 					return next();
 				}
 
 				this.middleware.remove(segment);
-				resolve(new ConversationAnswer(ctx, match));
+				resolve(new ConversationAnswer(upd, next, match));
 			});
 		});
 	}
