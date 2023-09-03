@@ -26,8 +26,12 @@ export class Polling extends EventTransport {
 		while (this.state === EventTransportState.Working) {
 			let updates = (await this.api.callMethod(
 				"getUpdates",
-				offset === undefined ? {} : { offset }
+				offset ? { offset } : {}
 			)) as IUpdateCollection;
+
+			this.log(
+				`updates chunk offset=${offset} ok=${updates.ok} count=${updates.result.length}`
+			);
 
 			let lastUpdateId = updates.result.at(-1)?.update_id;
 			if (lastUpdateId) {

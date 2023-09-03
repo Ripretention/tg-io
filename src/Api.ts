@@ -17,7 +17,8 @@ export class Api {
 	public clientOptions: Client.Options = { keepAliveTimeout: 6e3 };
 	private readonly client = new Client(this.baseUrl);
 
-	constructor(private readonly token: string) {
+	constructor(private readonly token: string, client?: Client) {
+		this.client = client ?? this.client;
 		this.client.on("connect", () =>
 			this.log("keep-alive connection created")
 		);
