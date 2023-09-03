@@ -29,8 +29,10 @@ export class Polling extends EventTransport {
 				offset === undefined ? {} : { offset }
 			)) as IUpdateCollection;
 
-			let lastUpdateId = updates.result.at(-1).update_id;
-			offset = lastUpdateId ? lastUpdateId + 1 : offset;
+			let lastUpdateId = updates.result.at(-1)?.update_id;
+			if (lastUpdateId) {
+				offset = lastUpdateId + 1;
+			}
 
 			Promise.all(
 				updates.result.map(async update => {

@@ -62,6 +62,8 @@ export class Api {
 				...this.parseParams(params),
 				throwOnError: true,
 			});
+
+			response.body.setEncoding("utf-8");
 		} catch (err) {
 			this.handleTelegramApiError(err, method, JSON.stringify(params));
 		} finally {
