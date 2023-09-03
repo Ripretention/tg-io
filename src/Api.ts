@@ -87,7 +87,6 @@ export class Api {
 			body,
 			headers: {
 				"Content-Type": "application/json",
-				"Content-Length": body.length.toString(),
 			},
 		};
 	}
