@@ -10,17 +10,32 @@ const transport = new Polling(api);
 
 test("should correctly update offset", async () => {
 	let update_id = 1;
-	let initialResponseSent = false;
 	apiMock.addCallback("getUpdates", ({ offset }: { offset?: number }) => {
 		if (offset === undefined) {
-			expect(initialResponseSent).toBe(false);
-			initialResponseSent = true;
 			return Promise.resolve({
 				ok: true,
 				result: [{ update_id }],
 			} as IUpdateCollection);
 		}
 		expect(offset).toBe(update_id + 1);
+		transport.stop();
+
+		return Promise.resolve({
+			ok: true,
+			result: [],
+		} as IUpdateCollection);
+	});
+	await transport.start(handler);
+	apiMock.clear();
+
+	apiMock.addCallback("getUpdates", ({ offset }: { offset?: number }) => {
+		if (offset === undefined) {
+			return Promise.resolve({
+				ok: true,
+				result: [{ update_id }, { update_id: update_id+1 }],
+			} as IUpdateCollection);
+		}
+		expect(offset).toBe(update_id + 2);
 		transport.stop();
 
 		return Promise.resolve({

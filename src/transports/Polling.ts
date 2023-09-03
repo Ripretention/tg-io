@@ -38,11 +38,7 @@ export class Polling extends EventTransport {
 				offset = lastUpdateId + 1;
 			}
 
-			Promise.all(
-				updates.result.map(async update => {
-					return await handler.handle(update);
-				})
-			).catch(onerror);
+			Promise.all(updates.result.map(handler.handle)).catch(onerror);
 		}
 		onstop();
 	}

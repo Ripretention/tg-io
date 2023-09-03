@@ -17,7 +17,10 @@ export class Api {
 	public clientOptions: Client.Options = { keepAliveTimeout: 6e3 };
 	private readonly client = new Client(this.baseUrl);
 
-	constructor(private readonly token: string, client?: Client) {
+	constructor(
+		private readonly token: string,
+		client?: Client
+	) {
 		this.client = client ?? this.client;
 		this.client.on("connect", () =>
 			this.log("keep-alive connection created")
@@ -71,11 +74,22 @@ export class Api {
 
 		return (await response.body.json()) as IApiResult<TResult>;
 	}
-	private parseParams(params: SupportedParamsBody) {
+	private parseParams(
+		params: SupportedParamsBody
+	): Partial<Dispatcher.RequestOptions> {
 		if (params instanceof FormData) {
-			return { body: params };
+			return {
+				body: params,
+			};
 		}
-		return { body: JSON.stringify(params) };
+		let body = JSON.stringify(params);
+		return {
+			body,
+			headers: {
+				"Content-Type": "application/json",
+				"Content-Length": body.length.toString(),
+			},
+		};
 	}
 	private handleTelegramApiError(
 		err: unknown,
