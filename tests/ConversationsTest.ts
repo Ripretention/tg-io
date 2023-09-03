@@ -1,3 +1,4 @@
+import { MessageContext } from "../src/contexts/MessageContext";
 import { IUpdateResult } from "../src/types/IUpdate";
 import { UpdateHandler } from "../src/UpdateHandler";
 
@@ -146,6 +147,24 @@ test("should handle condition fallback", async () => {
 		handler.handle(baseUpdate),
 		handler.handle(
 			Object.assign(baseUpdate, { message: { text: "what?" } })
+		),
+	]);
+});
+test("should provide correct next()", async () => {
+	handler.hearCommand("/test", async ctx => {
+		let { asText: content, ctx: upd, next } = await ctx.ask();
+		upd.text = content + " payload from prev";
+		next();
+	});
+	handler.implementConversations();
+	handler.onUpdate("message", async (ctx: MessageContext) => {
+		expect(ctx.text).toBe("i have payload from prev");
+	});
+
+	await Promise.all([
+		handler.handle(baseUpdate),
+		handler.handle(
+			Object.assign(baseUpdate, { message: { text: "i have" } })
 		),
 	]);
 });
