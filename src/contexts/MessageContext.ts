@@ -65,6 +65,27 @@ export class MessageContext extends Message {
 		return this.conversation.waitAnswer(this, options);
 	}
 
+	public async copyTo(
+		targetChatId: number | string,
+		params: Partial<Params.ICopyParams> = {}
+	) {
+		params.chat_id = targetChatId;
+		if (!params.message_id) {
+			params.message_id = this.id;
+		}
+		if (!params.from_chat_id) {
+			params.from_chat_id = this.chat.id;
+		}
+
+		let response = await this.execute<boolean | IUpdateResult>(
+			"copyMessage",
+			params
+		);
+		return typeof response === "object"
+			? new Message(response.message)
+			: undefined;
+	}
+
 	public async editText(
 		text: string = this.text,
 		params: Partial<Params.ITextEditParams | Params.ICaptionEditParams> = {}

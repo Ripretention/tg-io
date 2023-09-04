@@ -4,6 +4,7 @@ export type MiddlewareFn<T> = (arg: T, next: (nextArg?: T) => void) => any;
 export interface MiddlewareSegment<T> {
 	id: string;
 	fn: MiddlewareFn<T>;
+	label?: string;
 }
 
 export class MiddlewareToken {
@@ -39,9 +40,10 @@ export class Middleware<T> {
 			await token.complete(() => segment.fn(accValue, next));
 		}
 	}
-	public add(fn: MiddlewareFn<T>) {
+	public add(fn: MiddlewareFn<T>, label?: string) {
 		let segment: MiddlewareSegment<T> = {
 			id: randomUUID(),
+			label,
 			fn,
 		};
 

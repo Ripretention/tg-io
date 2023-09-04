@@ -61,7 +61,9 @@ export class UpdateHandler {
 		this.conversation = new Conversation();
 		this.onUpdate(
 			"message",
-			this.conversation.handle.bind(this.conversation)
+			this.conversation.handle.bind(this.conversation),
+			false,
+			"conversation middleware enterance"
 		);
 	}
 	public implementDecorators(...decoratedHandlers: Record<string, any>[]) {
@@ -86,10 +88,14 @@ export class UpdateHandler {
 	public onUpdate<TUpdate>(
 		updateKind: string,
 		handler: UpdateHandlerFn<TUpdate>,
-		skipConvertingToContext = false
+		skipConvertingToContext = false,
+		middlewareDebugLabel?: string
 	) {
 		if (this.updates.hasOwnProperty(updateKind)) {
-			this.updates[updateKind].add(handler);
+			this.updates[updateKind].add(
+				handler,
+				middlewareDebugLabel ?? "update"
+			);
 			return;
 		}
 
@@ -110,8 +116,8 @@ export class UpdateHandler {
 					  );
 
 			next(evt);
-		});
-		this.updates[updateKind].add(handler);
+		}, `convertation ${updateKind}`);
+		this.updates[updateKind].add(handler, middlewareDebugLabel ?? "update");
 	}
 	public hearCallbackQuery<TContext extends CallbackQueryContext>(
 		match: TextMatch,
@@ -119,7 +125,9 @@ export class UpdateHandler {
 	) {
 		this.onUpdate<TContext>(
 			"callback_query",
-			this.hearEvent<TContext>(match, handler, "data")
+			this.hearEvent<TContext>(match, handler, "data"),
+			false,
+			"callback " + match.toString()
 		);
 	}
 	public hearCommand<TContext extends MessageContext>(
@@ -128,7 +136,9 @@ export class UpdateHandler {
 	) {
 		this.onUpdate<TContext>(
 			"message",
-			this.hearEvent<TContext>(match, handler, "text")
+			this.hearEvent<TContext>(match, handler, "text"),
+			false,
+			"command " + match.toString()
 		);
 	}
 	private hearEvent<TContext extends { match: string[] }>(
@@ -155,10 +165,14 @@ export class UpdateHandler {
 		event: keyof TContext | keyof IMessage,
 		handler: UpdateHandlerFn<TContext>
 	) {
-		this.onUpdate<TContext>("message", (upd, next) =>
-			event.hasOwnProperty(event) || upd.get(event as any)
-				? handler(upd, next)
-				: next()
+		this.onUpdate<TContext>(
+			"message",
+			(upd, next) =>
+				event.hasOwnProperty(event) || upd.get(event as any)
+					? handler(upd, next)
+					: next(),
+			false,
+			"message event" + event.toString()
 		);
 	}
 }

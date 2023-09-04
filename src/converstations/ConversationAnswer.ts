@@ -16,7 +16,7 @@ export class ConversationAnswer {
 		return this.ctx.text;
 	}
 	public get asNumber() {
-		return Number(this.ctx);
+		return Number(this.ctx.text);
 	}
 
 	public toString() {

@@ -16,6 +16,7 @@ export class Conversation {
 	public async handle(ctx: MessageContext, next: () => void) {
 		let token = new MiddlewareToken();
 		await this.middleware.handle({ ctx, ctxNext: () => next() }, token);
+
 		if (token.getState()) {
 			return next();
 		}
@@ -31,23 +32,26 @@ export class Conversation {
 						return next();
 					}
 
-					let match: string[] =
-						options?.condition instanceof RegExp
-							? ctx.text?.match(options.condition) ?? []
-							: [];
 					if (
-						options.condition &&
+						options?.condition &&
 						!checkCondition(upd, options.condition)
 					) {
 						if (options?.conditionFallback) {
 							await options.conditionFallback(upd);
 						}
+
 						return next();
 					}
 
+					let match: string[] =
+						options?.condition instanceof RegExp
+							? upd.text?.match(options.condition) ?? []
+							: [];
+
 					this.middleware.remove(segment);
-					resolve(new ConversationAnswer(upd, updNext, match));
-				}
+					return resolve(new ConversationAnswer(upd, updNext, match));
+				},
+				`converation msg=${ctx.id}`
 			);
 		});
 	}
