@@ -6,3 +6,7 @@ export interface IUser {
 	last_name?: string;
 	username?: string;
 }
+export interface IUserShared {
+	request_id: number;
+	user_id: number;
+}

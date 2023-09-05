@@ -1,4 +1,12 @@
+import { randomInt } from "crypto";
 import { IKeyboardInlineButton, IKeyboardButton } from "../../types/IKeyboard";
+
+type DeepPartial<T> = T extends object
+	? {
+			[P in keyof T]?: DeepPartial<T[P]>;
+	  }
+	: T;
+
 export abstract class BaseButton {
 	constructor(public readonly text: string) {}
 	public abstract toObject(): Record<string, any>;
@@ -40,29 +48,31 @@ export class InlineButton extends BaseButton {
 	}
 }
 export class Button extends BaseButton {
+	public readonly shareRequestId = randomInt(-2147483648, 2147483647);
 	constructor(
 		text: string,
-		private readonly requestType?:
-			| "poll_quiz"
-			| "poll_regular"
-			| "location"
-			| "contact"
+		private readonly params: DeepPartial<IKeyboardButton> = {}
 	) {
 		super(text);
 	}
 
 	public toObject() {
-		let btn = {
-			text: this.text,
-		};
+		if (!this.params.text) {
+			this.params.text = this.text;
+		}
 
-		let type = this.requestType;
-		if (type === "contact") btn["request_contact"] = true;
-		else if (type === "location") btn["request_location"] = true;
-		else if (type === "poll_regular")
-			btn["request_poll"] = { type: "regular" };
-		else if (type === "poll_quiz") btn["request_poll"] = { type: "quiz" };
+		if (
+			this.params?.request_chat &&
+			!this.params.request_chat?.request_id
+		) {
+			this.params.request_chat.request_id = this.shareRequestId;
+		} else if (
+			this.params?.request_user &&
+			!this.params.request_user?.request_id
+		) {
+			this.params.request_user.request_id = this.shareRequestId;
+		}
 
-		return btn as IKeyboardButton;
+		return Object.assign({}, this.params) as IKeyboardButton;
 	}
 }

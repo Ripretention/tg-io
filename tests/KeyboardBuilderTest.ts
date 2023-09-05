@@ -65,10 +65,20 @@ describe("Keyboard Builder", () => {
 
 	test("should build keyboard with every type of buttons", () => {
 		let textBtn = new Button("text");
-		let contactBtn = new Button("text", "contact");
-		let locationBtn = new Button("text", "location");
-		let pollQuizBtn = new Button("text", "poll_quiz");
-		let pollRegularBtn = new Button("text", "poll_regular");
+		let contactBtn = new Button("text", { request_contact: true });
+		let locationBtn = new Button("text", { request_location: true });
+		let pollQuizBtn = new Button("text", {
+			request_poll: { type: "quiz" },
+		});
+		let pollRegularBtn = new Button("text", {
+			request_poll: { type: "regular" },
+		});
+		let shareUserBtn = new Button("text", {
+			request_user: { user_is_bot: true },
+		});
+		let shareChatBtn = new Button("text", {
+			request_chat: { bot_is_member: true },
+		});
 
 		let { reply_markup: result } = keyboard
 			.add(textBtn)
@@ -76,6 +86,8 @@ describe("Keyboard Builder", () => {
 			.add(locationBtn)
 			.add(pollQuizBtn)
 			.add(pollRegularBtn)
+			.add(shareUserBtn)
+			.add(shareChatBtn)
 			.build();
 
 		expect(result).toStrictEqual({
@@ -86,6 +98,18 @@ describe("Keyboard Builder", () => {
 					{ request_location: true },
 					{ request_poll: { type: "quiz" } },
 					{ request_poll: { type: "regular" } },
+					{
+						request_user: {
+							request_id: shareUserBtn.shareRequestId,
+							user_is_bot: true,
+						},
+					},
+					{
+						request_chat: {
+							request_id: shareChatBtn.shareRequestId,
+							bot_is_member: true,
+						},
+					},
 				].map(o => ({
 					text: "text",
 					...o,

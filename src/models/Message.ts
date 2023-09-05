@@ -15,6 +15,10 @@ export class Message extends Entity<IMessage> {
 		Message
 	);
 
+	public readonly shared = {
+		user: this.get("user_shared"),
+		chat: this.get("chat_shared"),
+	};
 	public keyboard = this.get("reply_markup");
 	public text = this.get("text") ?? this.get("caption");
 	public entities = this.get("entities") ?? this.get("caption_entities");

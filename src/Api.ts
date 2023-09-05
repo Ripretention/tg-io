@@ -1,4 +1,4 @@
-import { errors, Client, Dispatcher, FormData } from "undici";
+import { errors, Client, Dispatcher, FormData, request } from "undici";
 import * as debug from "debug";
 import { ReadStream } from "fs";
 import { IApiResult, IUpdateFailed } from "./types/IUpdate";
@@ -14,18 +14,17 @@ export type SupportedParamsBody = Record<string, unknown> | FormData;
 export class Api {
 	private readonly log = debug("tg-io:api");
 	private readonly baseUrl = `https://api.telegram.org`;
-	public clientOptions: Client.Options = { keepAliveTimeout: 6e3 };
-	private readonly client = new Client(this.baseUrl);
+	private readonly keepAliveClient: Client;
 
 	constructor(
 		private readonly token: string,
-		client?: Client
+		keepAliveClientOptions: Client.Options = { keepAliveTimeout: 6e3 }
 	) {
-		this.client = client ?? this.client;
-		this.client.on("connect", () =>
+		this.keepAliveClient = new Client(this.baseUrl, keepAliveClientOptions);
+		this.keepAliveClient.on("connect", () =>
 			this.log("keep-alive connection created")
 		);
-		this.client.on("disconnect", () =>
+		this.keepAliveClient.on("disconnect", () =>
 			this.log("keep-alive connection closed")
 		);
 	}
@@ -56,16 +55,20 @@ export class Api {
 
 	public async callMethod<TResult>(
 		method: string,
-		params: SupportedParamsBody
+		params: SupportedParamsBody,
+		keepAlive = false
 	) {
 		let response: Dispatcher.ResponseData;
 		try {
-			response = await this.client.request({
+			let requestOptions: Dispatcher.RequestOptions = {
 				method: "POST",
 				path: `/bot${this.token}/${method}`,
 				...this.parseParams(params),
 				throwOnError: true,
-			});
+			};
+			response = keepAlive
+				? await this.keepAliveClient.request(requestOptions)
+				: await request(this.baseUrl, requestOptions);
 		} catch (err) {
 			this.handleTelegramApiError(err, method, JSON.stringify(params));
 		} finally {

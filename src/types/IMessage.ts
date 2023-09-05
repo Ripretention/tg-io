@@ -7,10 +7,10 @@ import {
 	IVideoNoteAttachment,
 	IVoiceAttachment,
 } from "./IAttachment";
-import { IChat } from "./IChat";
+import { IChat, IChatShared } from "./IChat";
 import { IKeyboard, IKeyboardInline } from "./IKeyboard";
 import { IMessageEntity } from "./IMessageEntity";
-import { IUser } from "./IUser";
+import { IUser, IUserShared } from "./IUser";
 
 export interface IMessage {
 	readonly message_id: number;
@@ -32,4 +32,8 @@ export interface IMessage {
 	video_note?: IVideoNoteAttachment;
 	voice?: IVoiceAttachment;
 	photo?: IPhotoAttachment[];
+
+	// events
+	user_shared?: IUserShared;
+	chat_shared?: IChatShared;
 }

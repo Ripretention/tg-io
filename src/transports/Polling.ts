@@ -24,10 +24,11 @@ export class Polling extends EventTransport {
 		let offset: number | undefined;
 		this.state = EventTransportState.Working;
 		while (this.state === EventTransportState.Working) {
-			let updates = (await this.api.callMethod(
+			let updates: IUpdateCollection = await this.api.callMethod(
 				"getUpdates",
-				offset ? { offset } : {}
-			)) as IUpdateCollection;
+				offset ? { offset } : {},
+				true
+			);
 
 			this.log(
 				`updates chunk offset=${offset} ok=${updates.ok} count=${updates.result.length}`
@@ -38,7 +39,9 @@ export class Polling extends EventTransport {
 				offset = lastUpdateId + 1;
 			}
 
-			Promise.all(updates.result.map(handler.handle.bind(handler))).catch(onerror);
+			Promise.all(updates.result.map(handler.handle.bind(handler))).catch(
+				onerror
+			);
 		}
 		onstop();
 	}

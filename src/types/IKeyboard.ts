@@ -6,7 +6,20 @@ export interface IKeyboard {
 	selective?: boolean;
 }
 export interface IKeyboardButton {
-	readonly text: string;
+	text: string;
+	request_user?: {
+		request_id: number;
+		user_is_bot?: boolean;
+		user_is_premium?: boolean;
+	};
+	request_chat?: {
+		request_id: number;
+		chat_is_channel: boolean;
+		chat_is_forum?: boolean;
+		chat_has_username?: boolean;
+		chat_is_created?: boolean;
+		bot_is_member?: boolean;
+	};
 	request_contact?: boolean;
 	request_location?: boolean;
 	request_poll?: {
